@@ -6,6 +6,8 @@ import type {
   EventStudyData,
   Statistics,
   NewsArticle,
+  RefreshJobResponse,
+  RefreshJobStatus,
 } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -81,6 +83,15 @@ export const api = {
   // Get news articles (optional - for detail view)
   getNewsArticles: (limit = 100, offset = 0): Promise<NewsArticle[]> =>
     fetchApi<NewsArticle[]>(`/api/data/news-articles?limit=${limit}&offset=${offset}`),
+
+  // Data refresh methods
+  startRefresh: (): Promise<RefreshJobResponse> =>
+    fetchApi<RefreshJobResponse>("/api/data/refresh", {
+      method: "POST",
+    }),
+
+  getRefreshStatus: (jobId: string): Promise<RefreshJobStatus> =>
+    fetchApi<RefreshJobStatus>(`/api/data/refresh/status/${jobId}`),
 };
 
 export { ApiError };

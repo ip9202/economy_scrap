@@ -3,9 +3,11 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { EventDetailPanel } from "@/components/dashboard/EventDetailPanel";
 import { NewsStanceChart } from "@/components/charts/NewsStanceChart";
@@ -18,7 +20,10 @@ import {
   useEventStudy,
   useStatistics,
 } from "@/lib/hooks/use-news-data";
-import type { Event } from "@/types";
+import { api } from "@/lib/api/client";
+import { useToast } from "@/components/ui/use-toast";
+import type { Event, RefreshJobStatus, RefreshStage } from "@/types";
+import { REFRESH_STAGES } from "@/types";
 import {
   FileText,
   TrendingUp,
@@ -28,8 +33,15 @@ import {
 
 export default function DashboardPage() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  // Refresh state
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshJobId, setRefreshJobId] = useState<string | null>(null);
+  const [refreshStatus, setRefreshStatus] = useState<RefreshJobStatus | null>(null);
+  const [showProgressDialog, setShowProgressDialog] = useState(false);
 
   // Fetch all data
   const { data: newsDaily, isLoading: isLoadingNews, error: newsError } = useNewsDaily();
@@ -38,9 +50,89 @@ export default function DashboardPage() {
   const { data: eventStudy, isLoading: isLoadingStudy, error: studyError } = useEventStudy();
   const { data: statistics, isLoading: isLoadingStats } = useStatistics();
 
-  // Handle refresh
+  // Handle simple refresh
   const handleRefresh = async () => {
     await queryClient.invalidateQueries();
+  };
+
+  // Handle data scraping refresh
+  const handleScrapeRefresh = async () => {
+    try {
+      setIsRefreshing(true);
+      setShowProgressDialog(true);
+
+      // Start the refresh job
+      const response = await api.startRefresh();
+      setRefreshJobId(response.job_id);
+
+      // Poll for status updates
+      pollJobStatus(response.job_id);
+    } catch (error) {
+      console.error("Failed to start refresh:", error);
+      toast({
+        variant: "destructive",
+        title: "스크래핑 시작 실패",
+        description: "데이터 스크래핑을 시작하지 못했습니다. 백엔드 서버가 실행 중인지 확인해주세요.",
+      });
+      setIsRefreshing(false);
+      setShowProgressDialog(false);
+    }
+  };
+
+  // Poll job status
+  const pollJobStatus = async (jobId: string) => {
+    const pollInterval = setInterval(async () => {
+      try {
+        const status = await api.getRefreshStatus(jobId);
+        setRefreshStatus(status);
+
+        // Check if job is complete
+        if (status.status === "completed") {
+          clearInterval(pollInterval);
+          setIsRefreshing(false);
+          setShowProgressDialog(false);
+          setRefreshJobId(null);
+
+          // Show success notification
+          toast({
+            title: "스크래핑 완료",
+            description: "데이터가 성공적으로 업데이트되었습니다.",
+          });
+
+          // Invalidate queries to reload data
+          await queryClient.invalidateQueries();
+        } else if (status.status === "failed") {
+          clearInterval(pollInterval);
+          setIsRefreshing(false);
+          setShowProgressDialog(false);
+          setRefreshJobId(null);
+
+          // Show error notification
+          toast({
+            variant: "destructive",
+            title: "스크래핑 실패",
+            description: status.error || "데이터 스크래핑 중 오류가 발생했습니다.",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to poll job status:", error);
+        clearInterval(pollInterval);
+        setIsRefreshing(false);
+        setShowProgressDialog(false);
+        setRefreshJobId(null);
+
+        toast({
+          variant: "destructive",
+          title: "상태 확인 실패",
+          description: "작업 상태를 확인하지 못했습니다.",
+        });
+      }
+    }, 1500); // Poll every 1.5 seconds
+  };
+
+  // Get stage label in Korean
+  const getStageLabel = (stage: RefreshStage): string => {
+    return REFRESH_STAGES[stage]?.label || stage;
   };
 
   // Handle event click
@@ -70,18 +162,57 @@ export default function DashboardPage() {
                 한국은행 금리 결정과 뉴스 감성의 상관관계 분석
               </p>
             </div>
-            <Button
-              onClick={handleRefresh}
-              disabled={isLoading}
-              variant="outline"
-              size="sm"
-            >
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
-              데이터 새로고침
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleScrapeRefresh}
+                disabled={isRefreshing || isLoading}
+                variant="default"
+                size="sm"
+              >
+                {isRefreshing ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                스크래핑
+              </Button>
+              <Button
+                onClick={handleRefresh}
+                disabled={isLoading}
+                variant="outline"
+                size="sm"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+                데이터 새로고침
+              </Button>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Progress Dialog */}
+      <Dialog open={showProgressDialog} onOpenChange={setShowProgressDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>데이터 스크래핑 진행 중</DialogTitle>
+            <DialogDescription>
+              {refreshStatus ? getStageLabel(refreshStatus.stage as RefreshStage) : "작업 시작 중..."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Progress value={refreshStatus?.progress || 0} max={100} />
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                {refreshStatus ? getStageLabel(refreshStatus.stage as RefreshStage) : "초기화 중..."}
+              </span>
+              <span>{refreshStatus?.progress || 0}%</span>
+            </div>
+            {refreshStatus?.message && (
+              <p className="text-sm text-muted-foreground">{refreshStatus.message}</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
