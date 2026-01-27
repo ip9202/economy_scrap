@@ -88,8 +88,10 @@ export function EventStudyChart({ data }: EventStudyChartProps) {
           이벤트 {day > 0 ? `+${day}일` : `${day}일`}
         </p>
         {payload.map((entry: any) => {
-          const eventType = entry.dataKey.replace("_std", "");
-          if (eventType.includes("_std")) return null;
+          // Safely convert dataKey to string
+          const dataKeyStr = String(entry.dataKey || "");
+          const eventType = dataKeyStr.replace("_std", "");
+          if (dataKeyStr.includes("_std")) return null;
           return (
             <p key={entry.name} className="text-sm text-muted-foreground">
               {EVENT_TYPE_LABELS[eventType] || eventType}:{" "}
