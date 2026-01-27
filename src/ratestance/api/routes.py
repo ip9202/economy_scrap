@@ -25,7 +25,7 @@ def read_csv_safe(filename: str) -> pd.DataFrame:
         return df
     except Exception as e:
         logger.error(f"Error reading {filename}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error reading data file: {filename}")
+        raise HTTPException(status_code=500, detail=f"Error reading data file: {filename}") from e
 
 
 @router.get("/news-daily")
@@ -40,9 +40,7 @@ async def get_news_daily() -> list[dict]:
     required_cols = ["date", "stance_mean", "n_articles"]
     if not all(col in df.columns for col in required_cols):
         logger.error("Missing required columns in news_daily.csv")
-        raise HTTPException(
-            status_code=500, detail="Data file missing required columns"
-        )
+        raise HTTPException(status_code=500, detail="Data file missing required columns")
 
     # Convert to list of dicts
     result = df[required_cols].to_dict(orient="records")
@@ -69,9 +67,7 @@ async def get_rate_series() -> list[dict]:
     required_cols = ["date", "value", "unit"]
     if not all(col in df.columns for col in required_cols):
         logger.error("Missing required columns in rate_series.csv")
-        raise HTTPException(
-            status_code=500, detail="Data file missing required columns"
-        )
+        raise HTTPException(status_code=500, detail="Data file missing required columns")
 
     result = df[required_cols].to_dict(orient="records")
 
@@ -92,19 +88,16 @@ async def get_events() -> list[dict]:
     if df.empty:
         return []
 
-    required_cols = ["date", "event_type", "description"]
-    if not all(col in df.columns for col in required_cols):
-        logger.error("Missing required columns in events.csv")
-        raise HTTPException(
-            status_code=500, detail="Data file missing required columns"
-        )
-
-    result = df[required_cols].to_dict(orient="records")
+    result = df.to_dict(orient="records")
 
     for row in result:
         row["date"] = str(row["date"])
         row["event_type"] = str(row.get("event_type", "hold"))
-        row["description"] = str(row.get("description", ""))
+        # Construct description from available data
+        event_type_label = {"raise": "금리 인상", "cut": "금리 인하", "hold": "금리 유지"}.get(
+            row["event_type"], row["event_type"]
+        )
+        row["description"] = f"{event_type_label} ({row['date']})"
 
     return result
 
@@ -121,9 +114,7 @@ async def get_event_study() -> list[dict]:
     required_cols = ["event_date", "event_type", "day_offset", "stance_mean"]
     if not all(col in df.columns for col in required_cols):
         logger.error("Missing required columns in event_study_table.csv")
-        raise HTTPException(
-            status_code=500, detail="Data file missing required columns"
-        )
+        raise HTTPException(status_code=500, detail="Data file missing required columns")
 
     result = df.to_dict(orient="records")
 
@@ -160,7 +151,11 @@ async def get_statistics() -> dict:
 
     if not events_df.empty:
         event_count = len(events_df)
-        latest_event = str(events_df.iloc[0]["description"])
+        # Create description from available columns
+        latest = events_df.iloc[0]
+        event_type = latest.get("event_type", "hold")
+        event_date = latest.get("date", "")
+        latest_event = f"{event_type} ({event_date})"
 
     return {
         "total_articles": total_articles,

@@ -1,0 +1,10 @@
+{
+  "SPEC-UI-001": {
+    "id": "SPEC-UI-001",
+    "path": "/Users/ip9202/worktrees/MoAI-ADK/economy_scrap/SPEC-UI-001",
+    "branch": "feature/SPEC-UI-001",
+    "created_at": "2026-01-27T09:38:40.135541",
+    "status": "active",
+    "base_branch": "main"
+  }
+}

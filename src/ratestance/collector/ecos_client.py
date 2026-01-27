@@ -154,8 +154,8 @@ class EcosClient:
         end_str = end_date.strftime("%Y%m%d")
 
         url = (
-            f"{self.base_url}/StatisticSearch/{self.api_key}/json/kr/1/100/"
-            f"{stat_code}/DD/{start_str}/{end_str}/"
+            f"{self.base_url}/StatisticSearch/{self.api_key}/json/kr/1/10000/"
+            f"{stat_code}/D/{start_str}/{end_str}/0101000/"
         )
 
         logger.debug(f"Fetching time series from: {url}")

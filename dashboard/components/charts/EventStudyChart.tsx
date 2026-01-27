@@ -87,13 +87,13 @@ export function EventStudyChart({ data }: EventStudyChartProps) {
         <p className="text-sm font-medium text-foreground">
           이벤트 {day > 0 ? `+${day}일` : `${day}일`}
         </p>
-        {payload.map((entry: any) => {
+        {payload.map((entry: any, index: number) => {
           // Safely convert dataKey to string
           const dataKeyStr = String(entry.dataKey || "");
           const eventType = dataKeyStr.replace("_std", "");
           if (dataKeyStr.includes("_std")) return null;
           return (
-            <p key={entry.name} className="text-sm text-muted-foreground">
+            <p key={`${dataKeyStr}-${index}`} className="text-sm text-muted-foreground">
               {EVENT_TYPE_LABELS[eventType] || eventType}:{" "}
               <span
                 className="font-semibold"
