@@ -137,7 +137,7 @@ export default function DashboardPage() {
               <CardTitle>뉴스 감성 시계열</CardTitle>
             </CardHeader>
             <CardContent>
-              {newsDaily && events ? (
+              {newsDaily && newsDaily.length > 0 && events && events.length > 0 ? (
                 <div className="h-[400px]">
                   <NewsStanceChart data={newsDaily} events={events} />
                 </div>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
               <CardTitle>금리 시계열</CardTitle>
             </CardHeader>
             <CardContent>
-              {rateSeries ? (
+              {rateSeries && rateSeries.length > 0 ? (
                 <div className="h-[400px]">
                   <RateSeriesChart data={rateSeries} />
                 </div>
@@ -174,7 +174,7 @@ export default function DashboardPage() {
             <CardTitle>이벤트 스터디 분석</CardTitle>
           </CardHeader>
           <CardContent>
-            {eventStudy ? (
+            {eventStudy && eventStudy.length > 0 ? (
               <div className="h-[400px]">
                 <EventStudyChart data={eventStudy} />
               </div>
