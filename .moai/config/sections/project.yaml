@@ -1,0 +1,9 @@
+project:
+  name: economy_scrap
+  description: ''
+  type: ''
+  locale: '{{LOCALE}}'
+  created_at: '2026-01-27T07:43:19.682469Z'
+  initialized: 'true'
+github:
+  profile_name: ''
