@@ -37,6 +37,11 @@ def test_daily_aggregator_calculation():
                 "2026-01-16T10:00:00",
             ],
             "stance_score": [1, 2, -1],
+            "title": [
+                "기준금리 인상 검토",
+                "통화정책 완화 기대",
+                "한국은행 금리 동결",
+            ],
         }
     )
 

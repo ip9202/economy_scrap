@@ -51,7 +51,7 @@ def test_settings_queries_default(monkeypatch):
     """Test default queries."""
     monkeypatch.setenv("ECOS_API_KEY", "test_key")
     config = Settings()
-    assert len(config.queries) == 3
+    assert len(config.queries) == 6
     assert "한국은행 기준금리" in config.queries
 
 
