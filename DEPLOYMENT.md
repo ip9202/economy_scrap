@@ -1,16 +1,27 @@
-# RateStance MVP - Deployment Summary
+# RateStance Deployment Guide
 
-**SPEC ID**: SPEC-RATESTANCE-001
 **Version**: 0.1.0
-**Status**: READY FOR DEPLOYMENT
-**Date**: 2026-01-27
+**Status**: DEPLOYED
+**Last Updated**: 2026-02-02
 **Test Coverage**: 93.24% (50/50 tests passing)
 
 ---
 
-## Quick Start Guide
+## Table of Contents
 
-### Installation (5 minutes)
+1. [Quick Start](#quick-start)
+2. [Deployment Status](#deployment-status)
+3. [Server Configuration](#server-configuration)
+4. [Deployment Procedures](#deployment-procedures)
+5. [Initial Server Setup](#initial-server-setup)
+6. [Troubleshooting](#troubleshooting)
+7. [Project Information](#project-information)
+
+---
+
+## Quick Start
+
+### Local Development Setup
 
 ```bash
 # Clone repository
@@ -29,305 +40,438 @@ cp .env.example .env
 # Edit .env and add your ECOS_API_KEY from https://ecos.bok.or.kr/api/
 ```
 
-### First Run (2 minutes)
+### Dashboard Deployment
 
 ```bash
-# Run pipeline with default settings
-ratestance
-
-# Output files:
-# - data/news_raw.csv
-# - data/news_scored.csv
-# - data/news_daily.csv
-# - data/rate_series.csv
-# - data/events.csv
-# - data/event_study_table.csv
-# - outputs/news_stance_timeseries.png
-# - outputs/event_study.png
-# - logs/ratestance_YYYYMMDD.log
+cd /Users/ip9202/develop/vibe/economy_scrap
+./deploy/deploy.sh
 ```
 
-### Custom Parameters
+### Root Page Deployment
 
 ```bash
-# Analyze last 3 months with 7-day event window
-ratestance --months-back 3 --event-window 7
+# Method 1: Interactive (password prompt)
+./deploy/deploy-index.sh
 
-# Custom news queries
-ratestance --queries "한국은행 기준금리,통화정책"
+# Method 2: Environment variable
+DEPLOY_PASS=rkdcjfIP00! ./deploy/deploy-index.sh
 ```
 
 ---
 
-## Deliverables
+## Deployment Status
 
-### 1. Source Code (10 modules)
-
-**Configuration & CLI**
-- `config.py` - Pydantic configuration management
-- `cli.py` - Command-line interface
-
-**Data Collection**
-- `collector/news_collector.py` - Google News RSS collector
-- `collector/ecos_client.py` - ECOS API client with retry logic
-
-**Text Analysis**
-- `scorer/stance_scorer.py` - Hawkish/dovish keyword scoring
-
-**Data Processing**
-- `aggregator/daily_aggregator.py` - Daily time-series aggregation
-- `analyzer/event_detector.py` - Rate change event detection
-- `analyzer/event_study.py` - Event study analysis
-
-**Visualization & Orchestration**
-- `visualizer/plots.py` - Matplotlib visualization
-- `pipeline.py` - End-to-end pipeline orchestration
-
-### 2. Test Suite (16 files, 50 tests)
-
-**Test Coverage by Module**
-- `tests/test_config.py` - Configuration validation
-- `tests/test_news_collector.py` - RSS collection logic
-- `tests/test_ecos_client.py` - ECOS API integration
-- `tests/test_stance_scorer.py` - Scoring algorithm
-- `tests/test_daily_aggregator.py` - Aggregation logic
-- `tests/test_event_detector.py` - Event detection
-- `tests/test_event_study.py` - Event study calculations
-- `tests/test_plots.py` - Visualization generation
-- `tests/test_pipeline.py` - End-to-end integration
-
-**Coverage Metrics**: 93.24% (exceeds 85% target)
-
-### 3. Documentation
-
-**User Documentation**
-- `README.md` - Complete setup and usage guide
-- `CHANGELOG.md` - Version history and changes
-- `.env.example` - Environment variable template
-
-**API Documentation**
-- Comprehensive docstrings on all public functions
-- Type hints throughout codebase
-- Parameter descriptions and return types
-
-**Developer Documentation**
-- Project structure overview
-- Development workflow instructions
-- Code quality tooling (ruff, mypy, black)
-
-### 4. Configuration Files
-
-**Build & Distribution**
-- `pyproject.toml` - Package metadata and dependencies
-- `.gitignore` - Comprehensive ignore patterns (updated for data/outputs/)
-- `README.md` - Project overview
-
-**Quality Assurance**
-- `ruff` - Linting configuration (line-length: 100)
-- `mypy` - Strict type checking
-- `black` - Code formatting (line-length: 100)
-- `pytest` - Testing with 85% coverage threshold
+| 항목 | 상태 |
+|------|------|
+| 서비스 URL | https://ip9202.site/economy |
+| API URL | https://ip9202.site/api/ |
+| 대시보드 포트 | 3004 (PM2: ratestance) |
+| API 포트 | 8001 (PM2: ratestance-api) |
+| 웹 서버 | Nginx (HTTPS, HTTP/2) |
+| 최종 배포일 | 2026-02-02 |
 
 ---
 
-## Known Limitations
+## Server Configuration
 
-### Current Scope (MVP)
+### Port Allocation
 
-1. **Geographic Focus**: Korea-specific (Bank of Korea ECOS API)
-2. **Language Support**: Korean keywords only for stance detection
-3. **News Source**: Limited to Google News RSS feeds
-4. **Stance Detection**: Keyword-based only (no NLP/ML)
-5. **Event Window**: Fixed symmetric window (no pre/post differentiation)
-6. **Data Persistence**: File-based only (no database)
+| Port | Service | Type | PM2 Name | Purpose | URL |
+|------|---------|------|----------|---------|-----|
+| **8001** | ratestance-api | Python/FastAPI | `ratestance-api` | 금융 뉴스 분석 API | `/api/` |
+| **3004** | ratestance | Next.js | `ratestance` | 금융 뉴스 분석 대시보드 | `/economy` |
 
-### Out of Scope (Future Enhancements)
-
-1. Multi-central-bank support
-2. Advanced NLP/ML stance classification
-3. Real-time streaming analysis
-4. Web dashboard for visualization
-5. REST API for programmatic access
-6. Database persistence layer
-
----
-
-## Quality Assurance
-
-### Test Results
-
-```
-pytest --cov=src/ratestance --cov-report=term-missing
-
-========= 50 passed in 2.45s =========
- Coverage: 93.24%
-```
-
-### Code Quality
+### Server Information
 
 ```bash
-# Linting
-ruff check src/ tests/
-✓ No linting errors
+# Server Connection
+SERVER_HOST="ip9202.site"
+SERVER_USER="irons_server"
+PROJECT_PATH="~/projects/economy"
 
-# Type checking
-mypy src/ratestance --strict
-✓ No type errors
+# RateStance Dashboard
+APP_PORT="3004"
+PM2_NAME="ratestance"
+SERVICE_URL="https://ip9202.site/economy"
+BASE_PATH="/economy"
 
-# Formatting
-black src/ tests/
-✓ Code is properly formatted
+# RateStance API
+API_PORT="8001"
+API_PM2_NAME="ratestance-api"
+API_PATH="/api/"
 ```
 
-### TRUST 5 Compliance
+### Port Management Commands
 
-- **Tested**: 93.24% coverage, characterization tests included
-- **Readable**: Clear naming, comprehensive docstrings
-- **Unified**: Consistent formatting (black, ruff)
-- **Secured**: No hardcoded credentials, .env support
-- **Trackable**: Git-ready, structured logging
+```bash
+# Check port usage
+lsof -i :8001  # ratestance-api
+lsof -i :3004  # ratestance dashboard
 
----
+# PM2 process list
+pm2 list
 
-## Deployment Checklist
-
-### Pre-Deployment
-
-- [x] All tests passing (50/50)
-- [x] Coverage threshold met (93.24% > 85%)
-- [x] Type checking clean (mypy strict)
-- [x] Linting clean (ruff)
-- [x] Documentation complete (README, CHANGELOG, docstrings)
-- [x] Environment template provided (.env.example)
-- [x] .gitignore configured for data/outputs/
-- [x] Dependencies specified in pyproject.toml
-
-### Deployment Steps
-
-1. **Version Control**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial release: RateStance MVP v0.1.0"
-   git tag v0.1.0
-   ```
-
-2. **PyPI Distribution** (Optional)
-   ```bash
-   pip install build twine
-   python -m build
-   twine upload dist/*
-   ```
-
-3. **User Documentation**
-   - Publish README.md to repository
-   - Ensure .env.example is accessible
-   - Provide ECOS API key instructions
-
-4. **Monitoring**
-   - Review logs in `logs/ratestance_YYYYMMDD.log`
-   - Check data/ and outputs/ for generated files
-   - Verify stance scoring distribution
+# PM2 logs
+pm2 logs ratestance --lines 20
+pm2 logs ratestance-api --lines 20
+```
 
 ---
 
-## Research Context
+## Deployment Procedures
 
-### Research Questions
+### 1. Dashboard Deployment
 
-This MVP addresses three core research questions:
+#### Build Structure
 
-1. **RQ1**: Does news tone change lead rate events?
-   - **Approach**: Event study analysis with pre-event windows
+After `npm run build`, the structure is:
 
-2. **RQ2**: How long does tone change persist after events?
-   - **Approach**: Event study analysis with post-event windows
+```
+.next/
+├── standalone/           # standalone build
+│   ├── server.js        # server entry point
+│   ├── package.json     # minimal dependencies
+│   └── .next/           # actual build output ← Deploy this!
+├── static/              # static files ← Deploy separately!
+```
 
-3. **RQ3**: Do raise/hold/cut events have different tone reactions?
-   - **Approach**: Separate analysis by event type
+#### One-Click Deployment
 
-### Interpretation Guide
+```bash
+cd /Users/ip9202/develop/vibe/economy_scrap
+./deploy/deploy.sh
+```
 
-**Stance Scores**
-- **Positive (> 0)**: Hawkish (favoring rate increases)
-- **Negative (< 0)**: Dovish (favoring rate decreases)
-- **Zero (= 0)**: Neutral or no stance indicators
+#### Deployment Steps
 
-**Event Types**
-- **raise**: Central bank increased base rate
-- **cut**: Central bank decreased base rate
-- **hold**: Central bank kept base rate unchanged
+1. **Build** - Next.js application build
+2. **Clear server cache** - Remove old .next folder
+3. **Deploy .next** - Upload .next folder contents
+4. **Deploy static** - Upload static folder
+5. **Restart PM2** - Restart ratestance process
+6. **Check logs** - Verify startup
 
-**Event Study Output**
-- Day 0: Event day
-- Day -7 to -1: Pre-event window
-- Day +1 to +7: Post-event window
-- Mean stance: Average score across all events of type
+### 2. Root Index.html Deployment
+
+```bash
+cd /Users/ip9202/develop/vibe/economy_scrap
+
+# Method 1: Interactive (password prompt)
+./deploy/deploy-index.sh
+
+# Method 2: Environment variable
+DEPLOY_PASS=rkdcjfIP00! ./deploy/deploy-index.sh
+```
+
+### 3. API Server Management
+
+#### PM2 Commands
+
+```bash
+# SSH to server
+ssh irons_server@ip9202.site
+
+# PM2 process list
+pm2 list
+
+# Start ratestance-api
+cd ~/projects/economy/api
+pm2 start ecosystem.config.json
+pm2 save
+
+# Restart ratestance-api
+pm2 restart ratestance-api
+
+# Stop ratestance-api
+pm2 stop ratestance-api
+
+# View logs
+pm2 logs ratestance-api --lines 50
+
+# Real-time logs
+pm2 logs ratestance-api
+```
+
+#### API Endpoints
+
+| Endpoint | Description |
+|-----------|-------------|
+| `/api/data/statistics` | Statistics data |
+| `/api/data/news-daily` | Daily news sentiment data |
+| `/api/data/rate-series` | Interest rate time series |
+| `/api/data/events` | Rate change events |
+| `/api/data/event-study` | Event study analysis |
+| `/api/data/news-articles` | News articles list |
 
 ---
 
-## Support & Troubleshooting
+## Initial Server Setup
+
+### One-Time Dashboard Setup
+
+```bash
+# SSH to server
+ssh irons_server@ip9202.site
+
+# Create project directory
+mkdir -p ~/projects/economy
+
+# Copy from local after build:
+# 1. .next/standalone/server.js → ~/projects/economy/server.js
+# 2. .next/standalone/package.json → ~/projects/economy/package.json
+
+# Install dependencies
+cd ~/projects/economy
+npm install
+
+# Register PM2 process
+PORT=3004 pm2 start server.js --name ratestance
+pm2 save
+```
+
+### One-Time API Setup
+
+```bash
+# SSH to server
+ssh irons_server@ip9202.site
+
+# Create API project directory
+mkdir -p ~/projects/economy/api
+
+# Copy ecosystem.config.json to ~/projects/economy/api/
+
+# Create virtual environment
+cd ~/projects/economy/api
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+# Install package (from local project)
+pip install -e /path/to/economy_scrap[api]
+
+# Register PM2 process
+pm2 start ecosystem.config.json
+pm2 save
+```
+
+### Nginx Configuration
+
+Nginx 설정 파일 위치: `/opt/homebrew/etc/nginx/nginx.conf`
+
+```nginx
+# RateStance static resources
+location /economy/_next/ {
+    proxy_pass http://127.0.0.1:3004;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+# RateStance main page
+location /economy {
+    proxy_pass http://127.0.0.1:3004/;
+    rewrite ^/economy(/.*)$ $1 break;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+# RateStance API
+location /api/ {
+    proxy_pass http://127.0.0.1:8001;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # CORS headers
+    add_header Access-Control-Allow-Origin "https://ip9202.site" always;
+    add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" always;
+    add_header Access-Control-Allow-Headers "Authorization, Content-Type, Accept" always;
+
+    if ($request_method = OPTIONS) {
+        return 204;
+    }
+}
+```
+
+#### Nginx Restart Commands
+
+```bash
+# Homebrew nginx restart
+brew services restart nginx
+
+# Check nginx status
+ps aux | grep nginx | grep -v grep
+```
+
+---
+
+## Troubleshooting
+
+### Port Conflicts
+
+```bash
+# Check if port is in use
+lsof -i :3004  # Dashboard port
+lsof -i :8001  # API port
+
+# Kill process if needed
+kill -9 <PID>
+```
+
+### PM2 Issues
+
+```bash
+# Check process status
+pm2 list
+
+# View error logs
+pm2 logs ratestance --err
+pm2 logs ratestance-api --err
+
+# Restart process
+pm2 restart ratestance
+pm2 restart ratestance-api
+
+# Reset PM2 (if needed)
+pm2 delete all
+pm2 save
+```
+
+### Build Issues
+
+```bash
+# Clear Next.js cache
+cd dashboard
+rm -rf .next
+
+# Rebuild
+npm run build
+```
 
 ### Common Issues
 
-**ECOS API Key Error**
-```
-Error: Invalid ECOS API key
-Solution: Register at https://ecos.bok.or.kr/api/ and update .env
-```
+**Build fails**
+- Ensure `output: 'standalone'` in `dashboard/next.config.ts`
+- Check Node.js version compatibility
 
-**No News Articles Found**
-```
-Warning: No articles found for query
-Solution: Check internet connection, try different keywords
-```
+**API not responding**
+- Check if PM2 process is running: `pm2 list`
+- Verify port 8001 is available: `lsof -i :8001`
+- Check logs: `pm2 logs ratestance-api`
 
-**No Rate Change Events**
-```
-Warning: No events detected in date range
-Solution: Increase months_back parameter to cover longer period
-```
+**Dashboard not loading**
+- Check if PM2 process is running: `pm2 list`
+- Verify port 3004 is available: `lsof -i :3004`
+- Check Nginx configuration
 
-### Debug Mode
+**404 errors on /economy (basePath 관련)**
+- Next.js `basePath: '/economy'` 설정 시, Nginx에서 `rewrite`로 경로를 벗겨내면 안 됨
+- 올바른 설정: `proxy_pass http://127.0.0.1:3004;` (trailing slash 없이)
+- 잘못된 설정: `proxy_pass http://127.0.0.1:3004/;` + `rewrite ^/economy(/.*)$ $1 break;`
+- Next.js는 `basePath`가 있으면 `/economy` 경로 그대로 받아야 정상 동작
+- 참고: `hanyang` 프로젝트는 `basePath` 없이 동작하므로 rewrite 패턴이 맞지만, `ratestance`는 다름
 
-```bash
-# Enable debug logging
-ratestance --log-level DEBUG
-
-# Check logs
-tail -f logs/ratestance_$(date +%Y%m%d).log
-```
+**API 서버 502 에러 (ratestance-api 미실행)**
+- `pm2 list`에서 ratestance-api 프로세스 존재 여부 확인
+- 프로세스 없으면: `cd ~/projects/economy/api && pm2 start ecosystem.config.json && pm2 save`
+- PM2 프로세스가 서버 재부팅 후 사라질 수 있으므로 `pm2 save`로 저장 필수
 
 ---
 
-## Project Metrics
+## Project Information
 
-**Development Statistics**
-- Implementation Time: 1 day (SPEC-RATESTANCE-001)
-- Total Modules: 10
-- Test Files: 16
-- Test Cases: 50
-- Code Coverage: 93.24%
-- Lines of Code: ~2,000
-- Dependencies: 9 core, 6 dev
+### File Structure
 
-**Quality Metrics**
-- Type Safety: 100% (strict mypy)
-- Test Success Rate: 100% (50/50)
-- Linting: 0 errors
-- Documentation: Complete
+```
+economy_scrap/
+├── dashboard/              # Next.js application
+│   ├── next.config.ts     # standalone output setting
+│   ├── package.json
+│   └── ...
+├── deploy/                # Deployment scripts and configs
+│   ├── deploy.sh          # Main dashboard deployment script
+│   ├── deploy-index.sh    # Root index.html deployment
+│   ├── start-api.sh       # API server startup script (port 8001)
+│   ├── ecosystem.config.json  # PM2 config for API
+│   ├── nginx-economy.conf # Nginx configuration template
+│   ├── index.html         # Root page template
+│   └── README.md          # Deploy folder documentation
+├── src/ratestance/        # Python API source
+│   └── api/               # FastAPI application
+│       ├── main.py        # API entry point
+│       ├── routes.py      # API endpoints
+│       └── ...
+└── DEPLOYMENT.md          # This file (unified documentation)
+```
 
----
+### Deployment Scripts
 
-## Conclusion
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `deploy.sh` | Dashboard 배포 | `./deploy/deploy.sh` |
+| `deploy-index.sh` | Root index.html 배포 | `./deploy/deploy-index.sh` |
+| `start-api.sh` | API 서버 시작 (서버에서 실행) | PM2 통해 관리 |
 
-RateStance MVP v0.1.0 is **ready for deployment**. All deliverables are complete, tests are passing, and documentation is comprehensive. The system provides a solid foundation for monetary policy news analysis and can be extended based on research findings.
+### Important Notes
 
-**Next Steps**:
-1. Deploy to production environment
-2. Run initial analyses on historical data
-3. Gather feedback from researchers
-4. Plan v0.2.0 enhancements based on findings
+1. **고정 포트 사용**: ratestance는 항상 포트 3004, ratestance-api는 항상 포트 8001 사용
+2. **포트 충돌 확인**: 서비스 시작 전 `lsof -i :PORT`로 포트 사용 확인
+3. **Nginx 설정**: 서버에 `/_next/`, `/economy`, `/api/` location block 필요
+4. **PM2 설정**: 서버에 `ratestance`, `ratestance-api` 프로세스 미리 등록 필요
+5. **권한**: 배포 스크립트에 실행 권한 필요 (`chmod +x deploy/*.sh`)
+
+### Nginx 설정 주의사항 (basePath)
+
+Next.js `basePath: '/economy'`를 사용할 때 Nginx 설정:
+
+```nginx
+# 올바른 설정 (basePath 사용 시)
+location /economy {
+    proxy_pass http://127.0.0.1:3004;    # trailing slash 없음
+    # rewrite 없음 - /economy 경로를 그대로 전달
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+`basePath`가 없는 프로젝트(예: hanyang)는 `proxy_pass` trailing slash + `rewrite`가 필요하지만, `basePath`가 있으면 경로를 그대로 전달해야 함.
+
+### Update History
+
+- **2026-03-10**: Nginx 404 에러 수정 및 API 서버 복구
+  - /economy 404 원인: Nginx rewrite가 basePath를 제거하여 Next.js가 인식 못함
+  - 수정: proxy_pass trailing slash 제거 + rewrite 규칙 삭제
+  - ratestance-api PM2 프로세스 재등록 (포트 8001)
+
+- **2026-02-02**: Deployment documentation unified and reorganized
+  - Consolidated all deployment information into DEPLOYMENT.md
+  - Added comprehensive troubleshooting section
+  - Organized deployment procedures
+
+- **2026-02-01**: Dashboard deployment setup complete
+  - Applied Hanyang project deployment pattern
+  - Standalone build configuration
+  - Deployment scripts created
+  - Added RateStance to root index.html
+
+- **2026-02-01**: API server configuration and port allocation documented
+  - ratestance-api service added (port 8001)
+  - PM2 ecosystem.config.json setup
+  - Complete test server port allocation table
+  - Nginx API proxy configuration added
 
 ---
 
