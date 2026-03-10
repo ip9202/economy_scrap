@@ -9,11 +9,11 @@ Version: 2.0.0
 
 ## Quick Reference (30 seconds)
 
-Alfred operates under strict execution rules:
+MoAI operates under strict execution rules:
 
 Core Constraints:
-- Agent-First: ALWAYS delegate via Task(), NEVER execute directly
-- Allowed Tools: Task(), AskUserQuestion(), Skill(), MCP Servers
+- Agent-First: ALWAYS delegate via Agent(), NEVER execute directly
+- Allowed Tools: Agent(), AskUserQuestion(), Skill(), MCP Servers
 - Forbidden Tools: Read(), Write(), Edit(), Bash(), Grep(), Glob()
 
 Security Sandbox:
@@ -50,7 +50,7 @@ def process_user_data():
 REQUIRED Pattern:
 ```python
 # CORRECT - Agent delegation
-result = await Task(
+result = await Agent(
  subagent_type="code-backend",
  prompt="Process user data from data.txt",
  context={"file_path": "data.txt"}
@@ -59,7 +59,7 @@ result = await Task(
 
 Why Agent-First?:
 - Security: Agents validate before execution
-- Traceability: All actions logged via Task()
+- Traceability: All actions logged via Agent()
 - Quality: Agents enforce TRUST 5 gates
 - Scalability: Parallel/sequential delegation
 
@@ -71,23 +71,23 @@ Allowed Tools (4 categories):
 
 | Tool | Purpose | Example |
 |------|---------|---------|
-| `Task()` | Agent delegation | `Task("code-backend", "Implement API")` |
+| `Agent()` | Agent delegation | `Task("code-backend", "Implement API")` |
 | `AskUserQuestion()` | User interaction | `AskUserQuestion(questions=[...])` |
 | `Skill()` | Knowledge invocation | `Skill("moai-foundation-core")` |
-| `MCP Servers` | External integrations | Context7, Playwright, Figma |
+| `MCP Servers` | External integrations | Context7, Playwright, Pencil |
 
 Forbidden Tools (Why?):
 
 | Tool | Reason |
 |------|--------|
-| `Read()`, `Write()`, `Edit()` | Use Task() for file operations (security validation) |
-| `Bash()` | Use Task() for system operations (command validation) |
-| `Grep()`, `Glob()` | Use Task() for file search (permission checks) |
-| `TodoWrite()` | Use Task() for tracking (audit trail) |
+| `Read()`, `Write()`, `Edit()` | Use Agent() for file operations (security validation) |
+| `Bash()` | Use Agent() for system operations (command validation) |
+| `Grep()`, `Glob()` | Use Agent() for file search (permission checks) |
+| `TodoWrite()` | Use Agent() for tracking (audit trail) |
 
 Delegation Protocol:
 ```python
-result = await Task(
+result = await Agent(
  subagent_type="specialized_agent", # Agent name (lowercase, hyphenated)
  prompt="Clear, specific task description", # What to do
  context={ # Required information
@@ -163,7 +163,7 @@ MCP Server Permissions:
 |------------|-------------|
 | Context7 | Library documentation access, API reference resolution, version checking |
 | Playwright | Browser automation, screenshot capture, UI simulation, E2E testing |
-| Figma | Design system access, component extraction, design-to-code, style guides |
+| Pencil | Design system access, .pen file editing, design-to-code, style guides, variables |
 
 ---
 
@@ -171,7 +171,7 @@ MCP Server Permissions:
 
 ### Git Strategy 3-Mode System
 
-Alfred automatically adjusts Git workflow based on `config.json` settings.
+MoAI automatically adjusts Git workflow based on `config.json` settings.
 
 Key Configuration Fields:
 - `git_strategy.mode`: Git mode selection (manual, personal, team)
@@ -203,7 +203,7 @@ Configuration (default):
 }
 ```
 
-Alfred's Behavior (prompt_always=true):
+MoAI's Behavior (prompt_always=true):
 1. When running `/moai:1-plan`, user prompted: "Create branch?"
  - Auto create → Creates feature/SPEC-001
  - Use current branch → Continues on current branch
@@ -223,7 +223,7 @@ Configuration (auto skip):
 }
 ```
 
-Alfred's Behavior (prompt_always=false):
+MoAI's Behavior (prompt_always=false):
 - All SPECs automatically work on current branch (no branch creation)
 - No user prompts
 
@@ -246,7 +246,7 @@ Configuration (default - prompt each time):
 }
 ```
 
-Alfred's Behavior (prompt_always=true):
+MoAI's Behavior (prompt_always=true):
 1. When running `/moai:1-plan`, user prompted: "Create branch?"
  - Auto create → Creates feature/SPEC-002 + auto push
  - Use current branch → Commits directly on current branch
@@ -266,7 +266,7 @@ Configuration (auto after approval):
 }
 ```
 
-Alfred's Behavior (prompt_always=false, auto_enabled=false):
+MoAI's Behavior (prompt_always=false, auto_enabled=false):
 1. When running `/moai:1-plan`, user prompted once: "Enable automatic branch creation?"
  - Yes → Auto updates config.json with `auto_enabled=true` → Creates feature/SPEC
  - No → Works on current branch, no config change
@@ -285,7 +285,7 @@ Configuration (full automation):
 }
 ```
 
-Alfred's Behavior (prompt_always=false, auto_enabled=true):
+MoAI's Behavior (prompt_always=false, auto_enabled=true):
 - Automatically creates feature/SPEC-XXX branch for every SPEC
 - No user prompts (full automation)
 - All DDD and documentation commits auto-pushed to feature branch
@@ -309,7 +309,7 @@ Configuration (default - prompt each time):
 }
 ```
 
-Alfred's Behavior (prompt_always=true):
+MoAI's Behavior (prompt_always=true):
 1. When running `/moai:1-plan`, user prompted: "Create branch?"
  - Auto create → Creates feature/SPEC-003 + auto create Draft PR
  - Use current branch → Proceeds on current branch (not recommended)
@@ -331,7 +331,7 @@ Configuration (auto after approval):
 }
 ```
 
-Alfred's Behavior (prompt_always=false, auto_enabled=false):
+MoAI's Behavior (prompt_always=false, auto_enabled=false):
 1. When running `/moai:1-plan`, user prompted once: "Enable automatic branch creation and Draft PR creation?"
  - Yes → Auto updates config.json with `auto_enabled=true` → Creates feature/SPEC + Draft PR
  - No → Works on current branch, no config change
@@ -350,7 +350,7 @@ Configuration (full automation):
 }
 ```
 
-Alfred's Behavior (prompt_always=false, auto_enabled=true):
+MoAI's Behavior (prompt_always=false, auto_enabled=true):
 - Automatically creates feature/SPEC-XXX branch + Draft PR for every SPEC
 - No user prompts (full automation)
 - All DDD and documentation commits auto-pushed to feature branch

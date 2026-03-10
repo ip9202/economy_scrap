@@ -1,0 +1,162 @@
+{
+  "version": "",
+  "deployed_at": "",
+  "files": {
+    ".claude/agents/moai/builder-agent.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:23f576588bfa468e66810f4db2cd8ef06d062ebb3febe390bf21146ef966be37",
+      "deployed_hash": "sha256:23f576588bfa468e66810f4db2cd8ef06d062ebb3febe390bf21146ef966be37",
+      "current_hash": "sha256:23f576588bfa468e66810f4db2cd8ef06d062ebb3febe390bf21146ef966be37"
+    },
+    ".claude/agents/moai/builder-plugin.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:55d84347cb90f2614e884f1f0fb28bf99c83249e111b5fa315e168dcf2d6e5d8",
+      "deployed_hash": "sha256:55d84347cb90f2614e884f1f0fb28bf99c83249e111b5fa315e168dcf2d6e5d8",
+      "current_hash": "sha256:55d84347cb90f2614e884f1f0fb28bf99c83249e111b5fa315e168dcf2d6e5d8"
+    },
+    ".claude/agents/moai/builder-skill.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:5fdd5218882d39865d7d02d3fc404269f68f5fc1303046c9865d79a8ebe9dfea",
+      "deployed_hash": "sha256:5fdd5218882d39865d7d02d3fc404269f68f5fc1303046c9865d79a8ebe9dfea",
+      "current_hash": "sha256:5fdd5218882d39865d7d02d3fc404269f68f5fc1303046c9865d79a8ebe9dfea"
+    },
+    ".claude/agents/moai/expert-backend.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:169340b8340b9eb9df62d245603692d4510d690e5774f336bef02582cdb1114a",
+      "deployed_hash": "sha256:169340b8340b9eb9df62d245603692d4510d690e5774f336bef02582cdb1114a",
+      "current_hash": "sha256:169340b8340b9eb9df62d245603692d4510d690e5774f336bef02582cdb1114a"
+    },
+    ".claude/agents/moai/expert-chrome-extension.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:89389e67ede813ae19ed8148386c6bd709b31c45e2475af72e851fe89d83ebe7",
+      "deployed_hash": "sha256:89389e67ede813ae19ed8148386c6bd709b31c45e2475af72e851fe89d83ebe7",
+      "current_hash": "sha256:89389e67ede813ae19ed8148386c6bd709b31c45e2475af72e851fe89d83ebe7"
+    },
+    ".claude/agents/moai/expert-debug.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:2efbc69fba8381a00e63887f8aaf7bc39cf5b8fb3d50334342b5d981294e0dc7",
+      "deployed_hash": "sha256:2efbc69fba8381a00e63887f8aaf7bc39cf5b8fb3d50334342b5d981294e0dc7",
+      "current_hash": "sha256:2efbc69fba8381a00e63887f8aaf7bc39cf5b8fb3d50334342b5d981294e0dc7"
+    },
+    ".claude/agents/moai/expert-devops.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:6df339d0f01fa6ac9b536c77d21b183417246968986647855d367e27a2462b04",
+      "deployed_hash": "sha256:6df339d0f01fa6ac9b536c77d21b183417246968986647855d367e27a2462b04",
+      "current_hash": "sha256:6df339d0f01fa6ac9b536c77d21b183417246968986647855d367e27a2462b04"
+    },
+    ".claude/agents/moai/expert-frontend.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:12d5acd6694acf993869fd6382cb304a7d93f5ec2e48478c7504282044482bc6",
+      "deployed_hash": "sha256:12d5acd6694acf993869fd6382cb304a7d93f5ec2e48478c7504282044482bc6",
+      "current_hash": "sha256:12d5acd6694acf993869fd6382cb304a7d93f5ec2e48478c7504282044482bc6"
+    },
+    ".claude/agents/moai/expert-performance.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:4418272e0af52b5f9bd8f16998880ef8232f641ad4bc194bf4706a72876dadd9",
+      "deployed_hash": "sha256:4418272e0af52b5f9bd8f16998880ef8232f641ad4bc194bf4706a72876dadd9",
+      "current_hash": "sha256:4418272e0af52b5f9bd8f16998880ef8232f641ad4bc194bf4706a72876dadd9"
+    },
+    ".claude/agents/moai/expert-refactoring.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:54504c799d9c6123d5296a16ec8f7f386829512fccf821c1e3d6f1b2ac947e06",
+      "deployed_hash": "sha256:54504c799d9c6123d5296a16ec8f7f386829512fccf821c1e3d6f1b2ac947e06",
+      "current_hash": "sha256:54504c799d9c6123d5296a16ec8f7f386829512fccf821c1e3d6f1b2ac947e06"
+    },
+    ".claude/agents/moai/expert-security.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:b4d17ae65a58057c8876e8e08034e043b9a895cf1318ab9a118fc0cb1ac9b19e",
+      "deployed_hash": "sha256:b4d17ae65a58057c8876e8e08034e043b9a895cf1318ab9a118fc0cb1ac9b19e",
+      "current_hash": "sha256:b4d17ae65a58057c8876e8e08034e043b9a895cf1318ab9a118fc0cb1ac9b19e"
+    },
+    ".claude/agents/moai/expert-testing.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:30d74f266252de9dd7e17354dc69a968e83baa8f32a6a407a2674068e3a2a9a7",
+      "deployed_hash": "sha256:30d74f266252de9dd7e17354dc69a968e83baa8f32a6a407a2674068e3a2a9a7",
+      "current_hash": "sha256:30d74f266252de9dd7e17354dc69a968e83baa8f32a6a407a2674068e3a2a9a7"
+    },
+    ".claude/agents/moai/manager-ddd.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:8aa9dbc32dc12f7254f5f8cab7026ebd886fe62649de3eb778d001df9115757d",
+      "deployed_hash": "sha256:8aa9dbc32dc12f7254f5f8cab7026ebd886fe62649de3eb778d001df9115757d",
+      "current_hash": "sha256:8aa9dbc32dc12f7254f5f8cab7026ebd886fe62649de3eb778d001df9115757d"
+    },
+    ".claude/agents/moai/manager-docs.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:556dd75eb7ca7d02bad119608f0fe556281dd8f210259ff47bc02515d82a4638",
+      "deployed_hash": "sha256:556dd75eb7ca7d02bad119608f0fe556281dd8f210259ff47bc02515d82a4638",
+      "current_hash": "sha256:556dd75eb7ca7d02bad119608f0fe556281dd8f210259ff47bc02515d82a4638"
+    },
+    ".claude/agents/moai/manager-project.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:ce5abb17a601bb218438b00b2e48cd6718dd6f18ddf026db99db2cc9d1774dce",
+      "deployed_hash": "sha256:ce5abb17a601bb218438b00b2e48cd6718dd6f18ddf026db99db2cc9d1774dce",
+      "current_hash": "sha256:ce5abb17a601bb218438b00b2e48cd6718dd6f18ddf026db99db2cc9d1774dce"
+    },
+    ".claude/agents/moai/manager-quality.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:384218d98150cecb3dc0cda56369885a1e082d5ac774953b18d7e2400caa5d12",
+      "deployed_hash": "sha256:384218d98150cecb3dc0cda56369885a1e082d5ac774953b18d7e2400caa5d12",
+      "current_hash": "sha256:384218d98150cecb3dc0cda56369885a1e082d5ac774953b18d7e2400caa5d12"
+    },
+    ".claude/agents/moai/manager-spec.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:7faf67d93515812738b29c58f62df27c07a0ec0cc6a6ab425c44c583fceff0e9",
+      "deployed_hash": "sha256:7faf67d93515812738b29c58f62df27c07a0ec0cc6a6ab425c44c583fceff0e9",
+      "current_hash": "sha256:7faf67d93515812738b29c58f62df27c07a0ec0cc6a6ab425c44c583fceff0e9"
+    },
+    ".claude/agents/moai/manager-strategy.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:26b194ffaf4665eac84709a7f9a384d573b2a049d60808fe9ae02a7896fb28b1",
+      "deployed_hash": "sha256:26b194ffaf4665eac84709a7f9a384d573b2a049d60808fe9ae02a7896fb28b1",
+      "current_hash": "sha256:26b194ffaf4665eac84709a7f9a384d573b2a049d60808fe9ae02a7896fb28b1"
+    },
+    ".claude/agents/moai/manager-tdd.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:9d2618d3d93624bca1be54abefbc147d12d7c383d30643195c7030a7f600ab80",
+      "deployed_hash": "sha256:9d2618d3d93624bca1be54abefbc147d12d7c383d30643195c7030a7f600ab80",
+      "current_hash": "sha256:9d2618d3d93624bca1be54abefbc147d12d7c383d30643195c7030a7f600ab80"
+    },
+    ".claude/agents/moai/team-analyst.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:3849ed01ab6bfb64984f7acb1c494af1ee0a346f8794dea0c945e904d8f5c3d5",
+      "deployed_hash": "sha256:3849ed01ab6bfb64984f7acb1c494af1ee0a346f8794dea0c945e904d8f5c3d5",
+      "current_hash": "sha256:3849ed01ab6bfb64984f7acb1c494af1ee0a346f8794dea0c945e904d8f5c3d5"
+    },
+    ".claude/agents/moai/team-architect.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:9189c7316617aff26042c3b93f4b85e6cd9f3298b22ed8097e58d414481efabc",
+      "deployed_hash": "sha256:9189c7316617aff26042c3b93f4b85e6cd9f3298b22ed8097e58d414481efabc",
+      "current_hash": "sha256:9189c7316617aff26042c3b93f4b85e6cd9f3298b22ed8097e58d414481efabc"
+    },
+    ".claude/agents/moai/team-backend-dev.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:888e70a55621d68edb59ace797e5793f0bc5d904118d515f8f5d9d622038ecc4",
+      "deployed_hash": "sha256:888e70a55621d68edb59ace797e5793f0bc5d904118d515f8f5d9d622038ecc4",
+      "current_hash": "sha256:888e70a55621d68edb59ace797e5793f0bc5d904118d515f8f5d9d622038ecc4"
+    },
+    ".claude/agents/moai/team-designer.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:b9617fc73c5f2b0e33168bfb3a066c55a33c65b9880c92888d6b4b7853b0e981",
+      "deployed_hash": "sha256:b9617fc73c5f2b0e33168bfb3a066c55a33c65b9880c92888d6b4b7853b0e981",
+      "current_hash": "sha256:b9617fc73c5f2b0e33168bfb3a066c55a33c65b9880c92888d6b4b7853b0e981"
+    },
+    ".claude/agents/moai/team-frontend-dev.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:78b30d23542ef6e428f601517f7493e3b0f412ef2570ae665108d3b5865d8bc3",
+      "deployed_hash": "sha256:78b30d23542ef6e428f601517f7493e3b0f412ef2570ae665108d3b5865d8bc3",
+      "current_hash": "sha256:78b30d23542ef6e428f601517f7493e3b0f412ef2570ae665108d3b5865d8bc3"
+    },
+    ".claude/agents/moai/team-quality.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:b1d436dbc476822fd1f8bb5ce915c649305ba7ab230b806f18a5464ba57b204c",
+      "deployed_hash": "sha256:b1d436dbc476822fd1f8bb5ce915c649305ba7ab230b806f18a5464ba57b204c",
+      "current_hash": "sha256:b1d436dbc476822fd1f8bb5ce915c649305ba7ab230b806f18a5464ba57b204c"
+    },
+    ".claude/agents/moai/team-tester.md": {
+      "provenance": "template_managed",
+      "template_hash": "sha256:0bbc9831915c115a0a464dd3dfc774565e69881537544a8fead5cba48e92ac46",
+      "deployed_hash": "sha256:0bbc9831915c115a0a464dd3dfc774565e69881537544a8fead5cba48e92ac46",
+      "current_hash": "sha256:0bbc9831915c115a0a464dd3dfc774565e69881537544a8fead5cba48e92ac46"
+    }
+  }
+}
