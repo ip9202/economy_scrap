@@ -25,46 +25,46 @@ export const queryKeys = {
 };
 
 // Custom hooks
-export function useNewsDaily(): UseQueryResult<NewsDaily[], ApiError> {
+export function useNewsDaily(startDate?: string, endDate?: string): UseQueryResult<NewsDaily[], ApiError> {
   return useQuery({
-    queryKey: queryKeys.newsDaily,
-    queryFn: api.getNewsDaily,
+    queryKey: ["news-daily", startDate, endDate],
+    queryFn: () => api.getNewsDaily(startDate, endDate),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 }
 
-export function useRateSeries(): UseQueryResult<RateSeries[], ApiError> {
+export function useRateSeries(startDate?: string, endDate?: string): UseQueryResult<RateSeries[], ApiError> {
   return useQuery({
-    queryKey: queryKeys.rateSeries,
-    queryFn: api.getRateSeries,
+    queryKey: ["rate-series", startDate, endDate],
+    queryFn: () => api.getRateSeries(startDate, endDate),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 }
 
-export function useEvents(): UseQueryResult<Event[], ApiError> {
+export function useEvents(startDate?: string, endDate?: string): UseQueryResult<Event[], ApiError> {
   return useQuery({
-    queryKey: queryKeys.events,
-    queryFn: api.getEvents,
+    queryKey: ["events", startDate, endDate],
+    queryFn: () => api.getEvents(startDate, endDate),
     staleTime: 15 * 60 * 1000, // 15 minutes (events change rarely)
     gcTime: 30 * 60 * 1000,
   });
 }
 
-export function useEventStudy(): UseQueryResult<EventStudyData[], ApiError> {
+export function useEventStudy(startDate?: string, endDate?: string): UseQueryResult<EventStudyData[], ApiError> {
   return useQuery({
-    queryKey: queryKeys.eventStudy,
-    queryFn: api.getEventStudy,
+    queryKey: ["event-study", startDate, endDate],
+    queryFn: () => api.getEventStudy(startDate, endDate),
     staleTime: 10 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
   });
 }
 
-export function useStatistics(): UseQueryResult<Statistics, ApiError> {
+export function useStatistics(startDate?: string, endDate?: string): UseQueryResult<Statistics, ApiError> {
   return useQuery({
-    queryKey: queryKeys.statistics,
-    queryFn: api.getStatistics,
+    queryKey: ["statistics", startDate, endDate],
+    queryFn: () => api.getStatistics(startDate, endDate),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

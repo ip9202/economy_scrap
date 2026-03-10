@@ -36,6 +36,15 @@ class DailyAggregator:
         # Extract date from datetime
         df["date"] = pd.to_datetime(df["published_at"]).dt.date
 
+        # Remove duplicate articles on the same date with similar titles
+        # First, normalize titles for comparison
+        df["title_normalized"] = df["title"].str.strip().str.lower()
+
+        # Group by date and normalized title, keep first occurrence
+        df = df.drop_duplicates(subset=["date", "title_normalized"], keep="first")
+
+        logger.info(f"Removed {len(news_scored) - len(df)} duplicate articles by title and date")
+
         # Aggregate by date
         daily = (
             df.groupby("date")
@@ -50,8 +59,16 @@ class DailyAggregator:
         # Sort by date
         daily = daily.sort_values("date")
 
+        # Check for valid date range before creating date_range
+        min_date = daily["date"].min()
+        max_date = daily["date"].max()
+
+        if pd.isna(min_date) or pd.isna(max_date):
+            logger.warning("No valid dates in aggregated data, returning empty result")
+            return pd.DataFrame(columns=["date", "n_articles", "stance_mean", "stance_sum"])
+
         # Fill missing days with NaN (to preserve time series structure)
-        date_range = pd.date_range(start=daily["date"].min(), end=daily["date"].max(), freq="D")
+        date_range = pd.date_range(start=min_date, end=max_date, freq="D")
         daily = daily.set_index("date").reindex(date_range).reset_index()
         daily.rename(columns={"index": "date"}, inplace=True)
 

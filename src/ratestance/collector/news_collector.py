@@ -156,8 +156,24 @@ class NewsCollector:
         # Primary deduplication by google_url
         df = df.drop_duplicates(subset=["google_url"], keep="first")
 
-        # Secondary deduplication by (title, published_at)
-        df = df.drop_duplicates(subset=["title", "published_at"], keep="first")
+        # Normalize titles for better duplicate detection
+        # Remove HTML tags, source suffixes like " - 경향신문", " - v.daum.net"
+        df["title_normalized"] = df["title"].str.strip()
+        # Remove common source suffixes
+        df["title_normalized"] = df["title_normalized"].str.replace(
+            r"\s*[-–—]\s*(v\.daum\.net|news\.google\.com|경향신문|연합뉴스|조선일보|중앙일보|동아일보|MBC|KBS|SBS|YTN|연합뉴스TV).*",
+            "",
+            regex=True,
+        )
+        # Remove HTML tags and extra whitespace
+        df["title_normalized"] = df["title_normalized"].str.replace(r"<[^>]+>", "", regex=True)
+        df["title_normalized"] = df["title_normalized"].str.replace(r"\s+", " ", regex=True).str.strip()
+
+        # Secondary deduplication by (normalized_title, published_at)
+        df = df.drop_duplicates(subset=["title_normalized", "published_at"], keep="first")
+
+        # Drop the temporary column
+        df = df.drop(columns=["title_normalized"])
 
         duplicates_removed = original_count - len(df)
         if duplicates_removed > 0:

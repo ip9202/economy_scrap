@@ -12,15 +12,18 @@ import {
   Legend,
   ResponsiveContainer,
   ReferenceLine,
+  Brush,
 } from "recharts";
 import type { NewsDaily, Event } from "@/types";
 
 interface NewsStanceChartProps {
   data: NewsDaily[];
   events: Event[];
+  selectedDate: string | null;
+  onDateClick?: (date: string) => void;
 }
 
-export function NewsStanceChart({ data, events }: NewsStanceChartProps) {
+export function NewsStanceChart({ data, events, selectedDate, onDateClick }: NewsStanceChartProps) {
   // Process data for chart
   const chartData = useMemo(() => {
     return data.map((d) => ({
@@ -41,11 +44,19 @@ export function NewsStanceChart({ data, events }: NewsStanceChartProps) {
     return "#9ca3af"; // Gray for neutral
   };
 
-  // Custom tooltip
+  // Custom tooltip with click button
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload || !payload.length) return null;
 
     const data = payload[0].payload;
+
+    const handleButtonClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (onDateClick && data.fullDate) {
+        onDateClick(data.fullDate);
+      }
+    };
+
     return (
       <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
         <p className="text-sm font-medium text-foreground">{data.fullDate}</p>
@@ -61,14 +72,76 @@ export function NewsStanceChart({ data, events }: NewsStanceChartProps) {
         <p className="text-sm text-muted-foreground">
           기사 수: <span className="font-semibold">{data.articles}</span>
         </p>
+        {onDateClick && (
+          <button
+            onClick={handleButtonClick}
+            className="mt-2 w-full bg-primary text-primary-foreground hover:bg-primary/90 text-xs py-2 px-3 rounded-md font-medium transition-colors"
+          >
+            이 시점 뉴스 보기
+          </button>
+        )}
       </div>
+    );
+  };
+
+  // Handle chart click
+  const handleChartClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload.length > 0) {
+      const clickedData = data.activePayload[0].payload;
+      if (clickedData.fullDate && onDateClick) {
+        onDateClick(clickedData.fullDate);
+      }
+    }
+  };
+
+  // Custom dot component to show clickable points
+  const CustomDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    const isSelected = selectedDate === payload.fullDate;
+
+    const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onDateClick && payload.fullDate) {
+        onDateClick(payload.fullDate);
+      }
+    };
+
+    return (
+      <g onClick={handleClick} style={{ cursor: "pointer" }}>
+        {/* Outer circle for selection */}
+        {isSelected && (
+          <circle
+            cx={cx}
+            cy={cy}
+            r={8}
+            fill="none"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+          />
+        )}
+        {/* Inner dot */}
+        <circle
+          cx={cx}
+          cy={cy}
+          r={isSelected ? 5 : 4}
+          fill={getStanceColor(payload.stance)}
+          stroke={isSelected ? "#8b5cf6" : "#fff"}
+          strokeWidth={isSelected ? 2 : 1}
+          className="hover:r-6 transition-all"
+        />
+      </g>
     );
   };
 
   return (
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <LineChart
+          data={chartData}
+          margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
+          onClick={handleChartClick}
+        >
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis
             dataKey="date"
@@ -96,7 +169,21 @@ export function NewsStanceChart({ data, events }: NewsStanceChartProps) {
             dataKey="stance"
             stroke="#8b5cf6"
             strokeWidth={2}
-            dot={false}
+            dot={<CustomDot />}
+            activeDot={({ cx, cy, payload }: any) => (
+              <g
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDateClick && payload.fullDate) {
+                    onDateClick(payload.fullDate);
+                  }
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                <circle cx={cx} cy={cy} r={8} fill="#8b5cf6" fillOpacity={0.2} />
+                <circle cx={cx} cy={cy} r={6} fill="#8b5cf6" stroke="#fff" strokeWidth={2} />
+              </g>
+            )}
             name="일별 평균 감성"
           />
           {/* Reference line at 0 */}
@@ -128,6 +215,13 @@ export function NewsStanceChart({ data, events }: NewsStanceChartProps) {
               }}
             />
           ))}
+          {/* Brush for zooming */}
+          <Brush
+            dataKey="date"
+            height={30}
+            stroke="#8b5cf6"
+            fill="hsl(var(--muted))"
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>

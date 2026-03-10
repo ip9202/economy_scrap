@@ -10,7 +10,8 @@ import type {
   RefreshJobStatus,
 } from "@/types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// Use relative path for production (proxied through nginx), localhost for development
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 class ApiError extends Error {
   constructor(
@@ -61,34 +62,66 @@ async function fetchApi<T>(
 
 export const api = {
   // Get daily news sentiment data
-  getNewsDaily: (): Promise<NewsDaily[]> =>
-    fetchApi<NewsDaily[]>("/api/data/news-daily"),
+  getNewsDaily: (startDate?: string, endDate?: string): Promise<NewsDaily[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<NewsDaily[]>(`/api/data/news-daily${queryString ? `?${queryString}` : ""}`);
+  },
 
   // Get rate series data
-  getRateSeries: (): Promise<RateSeries[]> =>
-    fetchApi<RateSeries[]>("/api/data/rate-series"),
+  getRateSeries: (startDate?: string, endDate?: string): Promise<RateSeries[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<RateSeries[]>(`/api/data/rate-series${queryString ? `?${queryString}` : ""}`);
+  },
 
   // Get events
-  getEvents: (): Promise<Event[]> =>
-    fetchApi<Event[]>("/api/data/events"),
+  getEvents: (startDate?: string, endDate?: string): Promise<Event[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<Event[]>(`/api/data/events${queryString ? `?${queryString}` : ""}`);
+  },
 
   // Get event study data
-  getEventStudy: (): Promise<EventStudyData[]> =>
-    fetchApi<EventStudyData[]>("/api/data/event-study"),
+  getEventStudy: (startDate?: string, endDate?: string): Promise<EventStudyData[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<EventStudyData[]>(`/api/data/event-study${queryString ? `?${queryString}` : ""}`);
+  },
 
-  // Get statistics
-  getStatistics: (): Promise<Statistics> =>
-    fetchApi<Statistics>("/api/data/statistics"),
+  // Get statistics with optional date range filter
+  getStatistics: (startDate?: string, endDate?: string): Promise<Statistics> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<Statistics>(`/api/data/statistics${queryString ? `?${queryString}` : ""}`);
+  },
 
   // Get news articles (optional - for detail view)
   getNewsArticles: (limit = 100, offset = 0): Promise<NewsArticle[]> =>
     fetchApi<NewsArticle[]>(`/api/data/news-articles?limit=${limit}&offset=${offset}`),
 
+  // Get news articles by date range
+  getNewsByDate: (date: string, days = 3): Promise<NewsArticle[]> =>
+    fetchApi<NewsArticle[]>(`/api/data/news-articles/by-date?date=${date}&days=${days}`),
+
   // Data refresh methods
-  startRefresh: (): Promise<RefreshJobResponse> =>
-    fetchApi<RefreshJobResponse>("/api/data/refresh", {
+  startRefresh: (startDate?: string, endDate?: string): Promise<RefreshJobResponse> => {
+    const body = startDate && endDate ? { start_date: startDate, end_date: endDate } : {};
+    return fetchApi<RefreshJobResponse>("/api/data/refresh", {
       method: "POST",
-    }),
+      body: JSON.stringify(body),
+    });
+  },
 
   getRefreshStatus: (jobId: string): Promise<RefreshJobStatus> =>
     fetchApi<RefreshJobStatus>(`/api/data/refresh/status/${jobId}`),

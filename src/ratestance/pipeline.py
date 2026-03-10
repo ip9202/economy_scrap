@@ -88,24 +88,31 @@ class Pipeline:
             end_date=date_range[1],
             max_items=self.config.max_items_per_query,
         )
-        self._save_csv(news_raw, "data/news_raw.csv")
+        self._save_csv(news_raw, "data/news_raw.csv", merge_on="google_url")
 
         # Stage 3: Score articles for stance
         logger.info("Stage 3: Scoring articles for stance")
         news_scored = self.stance_scorer.score(news_raw)
-        self._save_csv(news_scored, "data/news_scored.csv")
+        self._save_csv(news_scored, "data/news_scored.csv", merge_on="google_url")
 
         # Stage 4: Aggregate to daily level
         logger.info("Stage 4: Aggregating to daily level")
-        news_daily = self.daily_aggregator.aggregate(news_scored)
-        self._save_csv(news_daily, "data/news_daily.csv")
+        # Load existing news_scored to aggregate all historical data
+        news_scored_path = Path("data/news_scored.csv")
+        if news_scored_path.exists():
+            existing_scored = pd.read_csv(news_scored_path, encoding="utf-8-sig")
+            logger.info(f"Loaded {len(existing_scored)} existing scored articles for aggregation")
+            news_daily = self.daily_aggregator.aggregate(existing_scored)
+        else:
+            news_daily = self.daily_aggregator.aggregate(news_scored)
+        self._save_csv(news_daily, "data/news_daily.csv", merge_on="date")
 
         # Stage 5: Collect base rates from ECOS
         logger.info("Stage 5: Collecting base rates from ECOS API")
         rate_series = self.ecos_client.fetch_base_rates(
             start_date=date_range[0], end_date=date_range[1]
         )
-        self._save_csv(rate_series, "data/rate_series.csv")
+        self._save_csv(rate_series, "data/rate_series.csv", merge_on="date")
 
         # Stage 6: Detect rate change events
         logger.info("Stage 6: Detecting rate change events")
@@ -147,13 +154,29 @@ class Pipeline:
         start_date = end_date - timedelta(days=self.config.months_back * 30)
         return start_date, end_date
 
-    def _save_csv(self, df: pd.DataFrame, filepath: str) -> None:
-        """Save DataFrame to CSV file.
+    def _save_csv(self, df: pd.DataFrame, filepath: str, merge_on: str | None = None) -> None:
+        """Save DataFrame to CSV file, merging with existing data if merge_on is specified.
 
         Args:
             df: DataFrame to save
             filepath: Output file path
+            merge_on: Column name to merge on (prevents duplicates). If None, overwrites.
         """
         Path(filepath).parent.mkdir(parents=True, exist_ok=True)
+
+        # If merge_on is specified and file exists, merge with existing data
+        if merge_on and Path(filepath).exists():
+            try:
+                existing_df = pd.read_csv(filepath, encoding="utf-8-sig")
+                # Concatenate and remove duplicates based on merge_on column
+                merged_df = pd.concat([existing_df, df], ignore_index=True)
+                merged_df = merged_df.drop_duplicates(subset=[merge_on], keep="last")
+                merged_df.to_csv(filepath, index=False, encoding="utf-8-sig")
+                logger.info(f"Merged and saved {len(merged_df)} rows to {filepath} (added {len(df)} new)")
+                return
+            except Exception as e:
+                logger.warning(f"Failed to merge with existing file: {e}. Saving as new file.")
+
+        # Default behavior: overwrite
         df.to_csv(filepath, index=False, encoding="utf-8-sig")
         logger.info(f"Saved {len(df)} rows to {filepath}")

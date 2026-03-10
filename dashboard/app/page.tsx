@@ -1,7 +1,7 @@
 // RateStance Dashboard Main Page
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { EventDetailPanel } from "@/components/dashboard/EventDetailPanel";
+import { NewsDetailPanel } from "@/components/dashboard/NewsDetailPanel";
+import { DateRangeSelector } from "@/components/dashboard/DateRangeSelector";
 import { NewsStanceChart } from "@/components/charts/NewsStanceChart";
 import { RateSeriesChart } from "@/components/charts/RateSeriesChart";
 import { EventStudyChart } from "@/components/charts/EventStudyChart";
+import { calculateDateRange } from "@/components/dashboard/DateRangeSelector";
 import {
   useNewsDaily,
   useRateSeries,
@@ -22,7 +25,7 @@ import {
 } from "@/lib/hooks/use-news-data";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/components/ui/use-toast";
-import type { Event, RefreshJobStatus, RefreshStage } from "@/types";
+import type { Event, RefreshJobStatus, RefreshStage, NewsArticle } from "@/types";
 import { REFRESH_STAGES } from "@/types";
 import {
   FileText,
@@ -35,20 +38,50 @@ export default function DashboardPage() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isEventPanelOpen, setIsEventPanelOpen] = useState(false);
+
+  // News detail panel state
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
+  const [isNewsPanelOpen, setIsNewsPanelOpen] = useState(false);
+  const [isLoadingNewsDetail, setIsLoadingNewsDetail] = useState(false);
 
   // Refresh state
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshJobId, setRefreshJobId] = useState<string | null>(null);
   const [refreshStatus, setRefreshStatus] = useState<RefreshJobStatus | null>(null);
   const [showProgressDialog, setShowProgressDialog] = useState(false);
+  const [currentTime, setCurrentTime] = useState<string>("");
+  const [scrapeDateRange, setScrapeDateRange] = useState<{ startDate: string; endDate: string }>(
+    calculateDateRange(6)
+  );
 
-  // Fetch all data
-  const { data: newsDaily, isLoading: isLoadingNews, error: newsError } = useNewsDaily();
-  const { data: rateSeries, isLoading: isLoadingRate, error: rateError } = useRateSeries();
-  const { data: events, isLoading: isLoadingEvents, error: eventsError } = useEvents();
-  const { data: eventStudy, isLoading: isLoadingStudy, error: studyError } = useEventStudy();
-  const { data: statistics, isLoading: isLoadingStats } = useStatistics();
+  // Set current time on client side only to avoid hydration mismatch
+  useEffect(() => {
+    setCurrentTime(new Date().toLocaleString("ko-KR"));
+  }, []);
+
+  // Fetch all data with date range filtering
+  const { data: newsDaily, isLoading: isLoadingNews, error: newsError } = useNewsDaily(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
+  const { data: rateSeries, isLoading: isLoadingRate, error: rateError } = useRateSeries(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
+  const { data: events, isLoading: isLoadingEvents, error: eventsError } = useEvents(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
+  const { data: eventStudy, isLoading: isLoadingStudy, error: studyError } = useEventStudy(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
+  const { data: statistics, isLoading: isLoadingStats } = useStatistics(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
 
   // Handle simple refresh
   const handleRefresh = async () => {
@@ -61,8 +94,8 @@ export default function DashboardPage() {
       setIsRefreshing(true);
       setShowProgressDialog(true);
 
-      // Start the refresh job
-      const response = await api.startRefresh();
+      // Start the refresh job with date range parameters
+      const response = await api.startRefresh(scrapeDateRange.startDate, scrapeDateRange.endDate);
       setRefreshJobId(response.job_id);
 
       // Poll for status updates
@@ -138,7 +171,29 @@ export default function DashboardPage() {
   // Handle event click
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
-    setIsPanelOpen(true);
+    setIsEventPanelOpen(true);
+  };
+
+  // Handle date click on chart
+  const handleDateClick = async (date: string) => {
+    try {
+      setIsLoadingNewsDetail(true);
+      setSelectedDate(date);
+      setIsNewsPanelOpen(true);
+
+      // Fetch news articles for the selected date
+      const articles = await api.getNewsByDate(date, 3);
+      setNewsArticles(articles);
+    } catch (error) {
+      console.error("Failed to fetch news articles:", error);
+      toast({
+        variant: "destructive",
+        title: "뉴스 기사 불러오기 실패",
+        description: "선택한 날짜의 뉴스 기사를 불러오는데 실패했습니다.",
+      });
+    } finally {
+      setIsLoadingNewsDetail(false);
+    }
   };
 
   // Calculate loading state
@@ -260,17 +315,30 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {/* Date Range Selector */}
+        <div className="mb-6">
+          <DateRangeSelector
+            onDateRangeChange={setScrapeDateRange}
+            disabled={isRefreshing || isLoading}
+          />
+        </div>
+
         {/* Main Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 gap-6 mb-6">
           {/* News Stance Timeseries Chart */}
-          <Card className="lg:col-span-2">
+          <Card>
             <CardHeader>
               <CardTitle>뉴스 감성 시계열</CardTitle>
             </CardHeader>
             <CardContent>
               {newsDaily && newsDaily.length > 0 && events && events.length > 0 ? (
                 <div className="h-[400px]">
-                  <NewsStanceChart data={newsDaily} events={events} />
+                  <NewsStanceChart
+                    data={newsDaily}
+                    events={events}
+                    selectedDate={selectedDate}
+                    onDateClick={handleDateClick}
+                  />
                 </div>
               ) : (
                 <div className="h-[400px] flex items-center justify-center text-muted-foreground">
@@ -306,11 +374,11 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {eventStudy && eventStudy.length > 0 ? (
-              <div className="h-[400px]">
+              <div className="h-[600px]">
                 <EventStudyChart data={eventStudy} />
               </div>
             ) : (
-              <div className="h-[400px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[600px] flex items-center justify-center text-muted-foreground">
                 데이터를 불러오는 중...
               </div>
             )}
@@ -323,7 +391,7 @@ export default function DashboardPage() {
             데이터 출처: 한국은행 경제통계시스템 (ECOS), 연합뉴스 RSS
           </p>
           <p className="mt-1">
-            마지막 업데이트: {new Date().toLocaleString("ko-KR")}
+            마지막 업데이트: {currentTime}
           </p>
         </footer>
       </main>
@@ -332,8 +400,17 @@ export default function DashboardPage() {
       <EventDetailPanel
         event={selectedEvent}
         relatedNews={[]}
-        open={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
+        open={isEventPanelOpen}
+        onClose={() => setIsEventPanelOpen(false)}
+      />
+
+      {/* News Detail Panel */}
+      <NewsDetailPanel
+        date={selectedDate}
+        articles={newsArticles}
+        open={isNewsPanelOpen}
+        onClose={() => setIsNewsPanelOpen(false)}
+        isLoading={isLoadingNewsDetail}
       />
     </div>
   );

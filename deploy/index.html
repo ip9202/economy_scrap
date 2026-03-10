@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ip9202.site - Projects</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --border: #2a2a3a;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .stat-item svg {
+            width: 18px;
+            height: 18px;
+            color: var(--accent);
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #a855f7);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px var(--shadow);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon svg {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .card-path {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            margin-top: 2px;
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .card-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-tag {
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+        }
+
+        .card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            text-decoration: none;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-stable {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-beta {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        .status-dev {
+            background: rgba(107, 114, 128, 0.2);
+            color: #94a3b8;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>ip9202.site</h1>
+            <p>개발 프로젝트 & 서비스 포털</p>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    <span>프로젝트 <span class="stat-value" id="project-count">0</span>개</span>
+                </div>
+                <div class="stat-item">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                    </svg>
+                    <span>서비스 운영 중 <span class="stat-value" id="active-count">0</span>개</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="grid" id="project-grid">
+            <!-- Cards will be rendered here -->
+        </main>
+
+        <footer class="footer">
+            <p>Powered by <a href="https://ip9202.site">ip9202.site</a> &bull; Updated: <span id="update-date"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // PROJECT CONFIGURATION - Add new projects here
+        // ============================================
+        const projects = [
+            {
+                name: "AI Automation",
+                path: "/ai_automation/",
+                description: "AI 기반 자동화 도구 및 워크플로우 플랫폼",
+                tech: ["Python", "FastAPI", "React"],
+                status: "stable",
+                icon: "robot"
+            },
+            {
+                name: "University Dashboard",
+                path: "/univ-comp/",
+                description: "대학교 비교 및 정보 대시보드",
+                tech: ["Next.js", "TypeScript", "Tailwind"],
+                status: "stable",
+                icon: "academic"
+            },
+            {
+                name: "Hanyang Freshman Guide",
+                path: "/hanyang",
+                description: "한양대학교 경제금융학부 신입생 가이드북",
+                tech: ["Next.js 16", "React 19", "TypeScript"],
+                status: "stable",
+                icon: "book"
+            },
+            {
+                name: "RateStance Dashboard",
+                path: "/economy",
+                description: "한국은행 기준금리 및 경제 지표 대시보드",
+                tech: ["Next.js", "TypeScript", "Tailwind"],
+                status: "stable",
+                icon: "chart"
+            },
+            // Add new projects below following the same format
+            // {
+            //     name: "Project Name",
+            //     path: "/path/",
+            //     description: "Project description",
+            //     tech: ["Tech1", "Tech2"],
+            //     status: "stable", // stable, beta, dev
+            //     icon: "default"
+            // }
+        ];
+
+        // ============================================
+        // ICON SVG MAPPING
+        // ============================================
+        const icons = {
+            robot: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>`,
+            academic: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 14l9-5-9-5-9 5 9 5z" /><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>`,
+            book: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>`,
+            chart: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>`,
+            default: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>`
+        };
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderProjects() {
+            const grid = document.getElementById('project-grid');
+            const projectCount = document.getElementById('project-count');
+            const activeCount = document.getElementById('active-count');
+
+            // Update stats
+            projectCount.textContent = projects.length;
+            activeCount.textContent = projects.filter(p => p.status === 'stable').length;
+
+            // Render cards
+            grid.innerHTML = projects.map(project => `
+                <div class="card">
+                    <span class="status-badge status-${project.status}">${project.status}</span>
+                    <a href="${project.path}" class="card-link" target="_self"></a>
+                    <div class="card-header">
+                        <div class="card-icon">
+                            ${icons[project.icon] || icons.default}
+                        </div>
+                        <div>
+                            <div class="card-title">${project.name}</div>
+                            <div class="card-path">${project.path}</div>
+                        </div>
+                    </div>
+                    <p class="card-description">${project.description}</p>
+                    <div class="card-tech">
+                        ${project.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Update date
+        document.getElementById('update-date').textContent = new Date().toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Initial render
+        renderProjects();
+    </script>
+</body>
+</html>

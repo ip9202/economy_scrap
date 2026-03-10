@@ -1,5 +1,7 @@
 """Configuration management for RateStance pipeline."""
 
+from datetime import date
+
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,7 +22,18 @@ class Settings(BaseSettings):
     ecod_api_key: str = Field(..., alias="ECOS_API_KEY")
     months_back: int = 6
     event_window_days: int = 14
-    queries: list[str] = Field(default=["한국은행 기준금리", "통화정책", "금리"], alias="QUERIES")
+    queries: list[str] = Field(
+        default=[
+            "한국은행 기준금리",
+            "통화정책",
+            "금리",
+            # English keywords for GDELT matching
+            "Bank of Korea interest rate",
+            "BOK rate",
+            "Korea monetary policy",
+        ],
+        alias="QUERIES"
+    )
     hawk_words: list[str] = Field(
         default=["인상", "긴축", "물가압력", "과열", "억제", "경계", "매파"], alias="HAWK_WORDS"
     )
@@ -28,6 +41,12 @@ class Settings(BaseSettings):
         default=["인하", "완화", "둔화", "부양", "하방", "지원", "비둘기"], alias="DOVE_WORDS"
     )
     max_items_per_query: int = 100
+
+    # GDELT BigQuery Configuration
+    gdelt_project_id: str | None = Field(default=None, alias="GDELT_PROJECT_ID")
+    gdelt_use_public: bool = Field(default=True, alias="GDELT_USE_PUBLIC")
+    enable_gdelt: bool = Field(default=True, alias="ENABLE_GDELT")
+    gdelt_cutoff_date: date = Field(default=date(2025, 8, 1), alias="GDELT_CUTOFF_DATE")
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -23,6 +23,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # Next.js dev server
         "http://127.0.0.1:3000",
+        "https://ip9202.site",  # Production server
     ],
     allow_credentials=True,
     allow_methods=["*"],

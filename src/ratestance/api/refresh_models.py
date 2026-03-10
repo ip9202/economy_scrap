@@ -3,9 +3,42 @@
 This module defines Pydantic models for job status tracking and responses.
 """
 
+from datetime import date
 from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+
+class RefreshRequest(BaseModel):
+    """Request model for data refresh job with optional date range.
+
+    Attributes:
+        start_date: Optional start date for data collection (ISO format YYYY-MM-DD).
+                    If not provided, uses default from Settings.
+        end_date: Optional end date for data collection (ISO format YYYY-MM-DD).
+                  If not provided, uses today.
+    """
+
+    start_date: date | None = Field(
+        None,
+        description="Start date for data collection (ISO format YYYY-MM-DD). If not provided, uses default from Settings.",
+        examples=["2024-01-01"],
+    )
+    end_date: date | None = Field(
+        None,
+        description="End date for data collection (ISO format YYYY-MM-DD). If not provided, uses today.",
+        examples=["2024-12-31"],
+    )
+
+    class Config:
+        """Pydantic model configuration."""
+
+        json_schema_extra = {
+            "example": {
+                "start_date": "2024-01-01",
+                "end_date": "2024-12-31",
+            }
+        }
 
 
 class JobStatus(BaseModel):

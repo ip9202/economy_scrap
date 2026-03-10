@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "ratestance-api",
+      "script": "/Users/irons_server/projects/economy/api/.venv/bin/uvicorn",
+      "interpreter": "/Users/irons_server/projects/economy/api/.venv/bin/python",
+      "args": "ratestance.api.main:app --host 0.0.0.0 --port 8001",
+      "cwd": "/Users/irons_server/projects/economy/api",
+      "env": {
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  ]
+}
