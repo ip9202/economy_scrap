@@ -451,6 +451,13 @@ location /economy {
 
 ### Update History
 
+- **2026-03-11**: 프로덕션 API URL 빌드 문제 수정
+  - 원인: `.env.local`에 `NEXT_PUBLIC_API_URL=http://localhost:8000`이 설정되어 프로덕션 빌드에 포함
+  - 프로덕션에서 브라우저가 nginx 프록시 대신 `localhost:8000`으로 API 호출 → ERR_CONNECTION_REFUSED
+  - 수정: `.env.development`에 로컬 개발용 URL(`http://localhost:8001`) 분리, `.env.local` 비움
+  - 프로덕션 빌드 시 `API_BASE_URL=""` (상대 경로) → nginx `/api/` 프록시 정상 동작
+  - React Error #418 (hydration mismatch)은 API 데이터 부재로 인한 파생 에러
+
 - **2026-03-10**: Nginx 404 에러 수정 및 API 서버 복구
   - /economy 404 원인: Nginx rewrite가 basePath를 제거하여 Next.js가 인식 못함
   - 수정: proxy_pass trailing slash 제거 + rewrite 규칙 삭제

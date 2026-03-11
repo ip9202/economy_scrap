@@ -5,6 +5,13 @@ All notable changes to RateStance MVP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-03-11
+
+### Fixed
+- 프로덕션 대시보드 API 연결 오류 수정 (localhost:8000 → 상대 경로)
+  - `.env.local`의 `NEXT_PUBLIC_API_URL`이 빌드에 포함되어 프로덕션에서 API 호출 실패
+  - `.env.development`로 로컬 개발 설정 분리, 프로덕션은 nginx 프록시 사용
+
 ## [0.1.0] - 2026-03-10
 
 ### Added
