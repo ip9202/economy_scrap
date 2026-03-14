@@ -205,6 +205,11 @@ dist-ssr/
 .netlify/
 .firebase/
 
+# ===========================================
+# MCP Plugin Cache
+# ===========================================
+.serena/
+
 # User Custom Patterns (preserved by moai update)
 data/
 outputs/
