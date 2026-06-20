@@ -48,13 +48,13 @@ export function useRateSeries(startDate?: string, endDate?: string): UseQueryRes
   });
 }
 
-export function useUsRateSeries(startDate?: string, endDate?: string): UseQueryResult<RateSeries[], ApiError> {
+// 미국 금리는 월별 데이터 → 날짜 필터 없이 전체 시리즈 fetch (차트에서 기간 매핑)
+export function useUsRateSeries(): UseQueryResult<RateSeries[], ApiError> {
   return useQuery({
-    queryKey: ["us-rate-series", startDate, endDate],
-    queryFn: () => api.getUsRateSeries(startDate, endDate),
-    enabled: dateRangeEnabled(startDate),
-    staleTime: 15 * 60 * 1000, // 미국 금리는 월별로 변경 드물어 더 길게
-    gcTime: 30 * 60 * 1000,
+    queryKey: ["us-rate-series"],
+    queryFn: () => api.getUsRateSeries(),
+    staleTime: 60 * 60 * 1000, // 1시간 (FRED 월별 업데이트)
+    gcTime: 4 * 60 * 60 * 1000,
   });
 }
 

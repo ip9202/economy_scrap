@@ -63,7 +63,7 @@ def test_news_collection(start_date: date, end_date: date) -> bool:
         print("✗ Failed: Client not available")
         return False
 
-    print(f"\nCollecting news for queries:")
+    print("\nCollecting news for queries:")
     queries = ["한국은행 기준금리", "통화정책", "금리"]
     for q in queries:
         print(f"  - {q}")
@@ -77,7 +77,7 @@ def test_news_collection(start_date: date, end_date: date) -> bool:
             max_items=100,
         )
 
-        print(f"\n✓ Collection successful")
+        print("\n✓ Collection successful")
         print(f"  Articles collected: {len(df)}")
 
         if df.empty:

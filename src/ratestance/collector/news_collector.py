@@ -167,7 +167,9 @@ class NewsCollector:
         )
         # Remove HTML tags and extra whitespace
         df["title_normalized"] = df["title_normalized"].str.replace(r"<[^>]+>", "", regex=True)
-        df["title_normalized"] = df["title_normalized"].str.replace(r"\s+", " ", regex=True).str.strip()
+        df["title_normalized"] = (
+            df["title_normalized"].str.replace(r"\s+", " ", regex=True).str.strip()
+        )
 
         # Secondary deduplication by (normalized_title, published_at)
         df = df.drop_duplicates(subset=["title_normalized", "published_at"], keep="first")

@@ -183,6 +183,13 @@ secret-*.*
 .moai/worktrees/
 
 # ===========================================
+# Evolution Telemetry (local-only usage data)
+# Learnings and new-skills are git-tracked for team sharing.
+# ===========================================
+.moai/evolution/telemetry/*.jsonl
+!.moai/evolution/telemetry/.gitkeep
+
+# ===========================================
 # Node.js (for docs/Nextra)
 # ===========================================
 node_modules/
@@ -205,12 +212,8 @@ dist-ssr/
 .netlify/
 .firebase/
 
-# ===========================================
-# MCP Plugin Cache
-# ===========================================
-.serena/
-
 # User Custom Patterns (preserved by moai update)
+.serena/
 data/
 outputs/
 *.png

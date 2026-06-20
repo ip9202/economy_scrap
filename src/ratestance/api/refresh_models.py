@@ -21,12 +21,18 @@ class RefreshRequest(BaseModel):
 
     start_date: date | None = Field(
         None,
-        description="Start date for data collection (ISO format YYYY-MM-DD). If not provided, uses default from Settings.",
+        description=(
+            "Start date for data collection (ISO format YYYY-MM-DD). "
+            "If not provided, uses default from Settings."
+        ),
         examples=["2024-01-01"],
     )
     end_date: date | None = Field(
         None,
-        description="End date for data collection (ISO format YYYY-MM-DD). If not provided, uses today.",
+        description=(
+            "End date for data collection (ISO format YYYY-MM-DD). "
+            "If not provided, uses today."
+        ),
         examples=["2024-12-31"],
     )
 

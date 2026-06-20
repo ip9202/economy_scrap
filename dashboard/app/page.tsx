@@ -73,10 +73,8 @@ export default function DashboardPage() {
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
   );
-  const { data: usRateSeries } = useUsRateSeries(
-    scrapeDateRange.startDate,
-    scrapeDateRange.endDate
-  );
+  // 미국 금리는 전체 시계열 fetch (월별 → 차트에서 날짜 매핑)
+  const { data: usRateSeries } = useUsRateSeries();
   const { data: nextMeetings } = useNextMeetings();
   const { data: events, isLoading: isLoadingEvents, error: eventsError } = useEvents(
     scrapeDateRange.startDate,

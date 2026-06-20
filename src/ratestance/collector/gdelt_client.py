@@ -265,7 +265,10 @@ class GdeltClient:
         parts = []
 
         # Check for Tone column (V2Tone in GDELT v2, fallback to Tone/tone)
-        tone_col = "V2Tone" if "V2Tone" in row.index else ("Tone" if "Tone" in row.index else "tone")
+        tone_col = (
+            "V2Tone" if "V2Tone" in row.index
+            else ("Tone" if "Tone" in row.index else "tone")
+        )
         positive_col = (
             "V2PositiveScore"
             if "V2PositiveScore" in row.index
@@ -290,7 +293,8 @@ class GdeltClient:
         if negative_col in row.index and pd.notna(row[negative_col]):
             parts.append(f"Negative: {row[negative_col]:.2f}")
 
-        if persons_col in row.index and pd.notna(row[persons_col]) and str(row[persons_col]) != "nan":
+        persons_val = row[persons_col] if persons_col in row.index else None
+        if persons_val is not None and pd.notna(persons_val) and str(persons_val) != "nan":
             persons = str(row[persons_col])[:100]
             parts.append(f"Persons: {persons}")
 

@@ -9,6 +9,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
 import type { RateSeries } from "@/types";
@@ -21,16 +22,22 @@ interface RateSeriesChartProps {
 export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
   // Process data for chart
   const chartData = useMemo(() => {
-    // 미국 금리는 월별 → YYYY-MM 키로 매핑하여 한국 일별 날짜에 forward-fill
+    // 미국 금리는 월별 → YYYY-MM 키 매핑 후 forward-fill (FRED 미발표 월 포함)
     const usMap = new Map<string, number>();
     if (usRate && usRate.length) {
-      usRate.forEach((u) => {
-        const month = String(u.date).slice(0, 7); // YYYY-MM
+      const sorted = [...usRate].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      sorted.forEach((u) => {
+        const month = String(u.date).slice(0, 7);
         if (u.value != null) usMap.set(month, u.value);
       });
     }
+
+    let lastUsRate: number | null = null;
     return data.map((d) => {
       const month = String(d.date).slice(0, 7);
+      if (usMap.has(month)) {
+        lastUsRate = usMap.get(month) ?? lastUsRate;
+      }
       return {
         date: new Date(d.date).toLocaleDateString("ko-KR", {
           month: "short",
@@ -38,7 +45,7 @@ export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
         }),
         fullDate: d.date,
         rate: d.value,
-        usRate: usMap.has(month) ? usMap.get(month) ?? null : null,
+        usRate: lastUsRate,
       };
     });
   }, [data, usRate]);
@@ -94,13 +101,18 @@ export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
             tick={{ fill: "hsl(var(--muted-foreground))" }}
           />
           <Tooltip content={<CustomTooltip />} />
+          <Legend
+            formatter={(value) =>
+              value === "rate" ? "한국 기준금리" : "미국 기준금리 (FRED)"
+            }
+          />
           <Area
             type="monotone"
             dataKey="rate"
             stroke="hsl(var(--primary))"
             strokeWidth={2}
             fill="url(#rateGradient)"
-            name="한국 기준금리"
+            name="rate"
           />
           {usRate && usRate.length > 0 && (
             <Area
@@ -109,7 +121,7 @@ export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
               stroke="#3b82f6"
               strokeWidth={2}
               fill="rgba(59,130,246,0.1)"
-              name="미국 기준금리"
+              name="usRate"
               connectNulls
             />
           )}
