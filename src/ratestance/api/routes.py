@@ -473,6 +473,42 @@ async def get_us_rate_series(start_date: str = None, end_date: str = None) -> li
     return result
 
 
+# BOK 금통위 및 FOMC 2025-2026 일정
+_BOK_DATES = [
+    "2025-01-16", "2025-02-25", "2025-04-17", "2025-05-29",
+    "2025-07-11", "2025-08-28", "2025-10-16", "2025-11-28",
+    "2026-01-16", "2026-02-26", "2026-04-17", "2026-05-29",
+    "2026-07-10", "2026-08-28", "2026-10-16", "2026-11-27",
+]
+_FOMC_DATES = [
+    "2025-01-29", "2025-03-19", "2025-05-07", "2025-06-18",
+    "2025-07-30", "2025-09-17", "2025-10-29", "2025-12-10",
+    "2026-01-28", "2026-03-18", "2026-04-29", "2026-06-10",
+    "2026-07-29", "2026-09-16", "2026-10-28", "2026-12-09",
+]
+
+
+@router.get("/next-meetings")
+async def get_next_meetings() -> dict:
+    """Return next BOK and FOMC meeting dates relative to today."""
+    today = date.today()
+    today_str = today.isoformat()
+
+    next_bok = next((d for d in sorted(_BOK_DATES) if d > today_str), None)
+    next_fomc = next((d for d in sorted(_FOMC_DATES) if d > today_str), None)
+
+    def days_until(d_str: str | None) -> int | None:
+        if d_str is None:
+            return None
+        return (date.fromisoformat(d_str) - today).days
+
+    return {
+        "bok": {"date": next_bok, "days_until": days_until(next_bok)},
+        "fomc": {"date": next_fomc, "days_until": days_until(next_fomc)},
+        "as_of": today_str,
+    }
+
+
 @router.get("/events")
 async def get_events(start_date: str = None, end_date: str = None) -> list[dict]:
     """Get interest rate change events.

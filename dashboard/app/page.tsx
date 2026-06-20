@@ -12,6 +12,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { EventDetailPanel } from "@/components/dashboard/EventDetailPanel";
 import { NewsDetailPanel } from "@/components/dashboard/NewsDetailPanel";
 import { DateRangeSelector } from "@/components/dashboard/DateRangeSelector";
+import { NextMeetingBanner } from "@/components/dashboard/NextMeetingBanner";
 import { NewsStanceChart } from "@/components/charts/NewsStanceChart";
 import { RateSeriesChart } from "@/components/charts/RateSeriesChart";
 import { EventStudyChart } from "@/components/charts/EventStudyChart";
@@ -22,6 +23,7 @@ import {
   useEvents,
   useEventStudy,
   useStatistics,
+  useNextMeetings,
 } from "@/lib/hooks/use-news-data";
 import { api } from "@/lib/api/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -74,6 +76,7 @@ export default function DashboardPage() {
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
   );
+  const { data: nextMeetings } = useNextMeetings();
   const { data: events, isLoading: isLoadingEvents, error: eventsError } = useEvents(
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
@@ -326,6 +329,11 @@ export default function DashboardPage() {
             disabled={isRefreshing || isLoading}
           />
         </div>
+
+        {/* Next meeting dates banner */}
+        {nextMeetings && (
+          <NextMeetingBanner bok={nextMeetings.bok} fomc={nextMeetings.fomc} />
+        )}
 
         {/* Main Charts Row */}
         <div className="grid grid-cols-1 gap-6 mb-6">

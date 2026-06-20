@@ -134,6 +134,12 @@ export const api = {
 
   getRefreshStatus: (jobId: string): Promise<RefreshJobStatus> =>
     fetchApi<RefreshJobStatus>(`/api/data/refresh/status/${jobId}`),
+
+  getNextMeetings: (): Promise<{
+    bok: { date: string | null; days_until: number | null };
+    fomc: { date: string | null; days_until: number | null };
+    as_of: string;
+  }> => fetchApi("/api/data/next-meetings"),
 };
 
 export { ApiError };

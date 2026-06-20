@@ -99,3 +99,12 @@ export function useNewsArticles(
     gcTime: 10 * 60 * 1000,
   });
 }
+
+export function useNextMeetings() {
+  return useQuery({
+    queryKey: ["next-meetings"],
+    queryFn: () => api.getNextMeetings(),
+    staleTime: 60 * 60 * 1000, // 1시간 (발표일 일정은 거의 변하지 않음)
+    gcTime: 24 * 60 * 60 * 1000,
+  });
+}
