@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     """
 
     ecod_api_key: str = Field(..., alias="ECOS_API_KEY")
-    months_back: int = 6
+    months_back: int = 72  # 2020년부터 현재까지: COVID 저점 → 2022년 인상 → 2024-25년 인하 커버
     event_window_days: int = 14
     queries: list[str] = Field(
         default=[

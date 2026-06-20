@@ -49,7 +49,7 @@ def test_event_detector_detect_cut():
 
 
 def test_event_detector_detect_hold():
-    """Test detection of rate hold events."""
+    """Test detection of rate hold events (should return empty since holds are excluded)."""
     rate_series = pd.DataFrame(
         {
             "date": [date(2026, 1, 1), date(2026, 1, 15)],
@@ -60,13 +60,12 @@ def test_event_detector_detect_hold():
     detector = EventDetector()
     result = detector.detect(rate_series)
 
-    assert len(result) == 1
-    assert result.iloc[0]["event_type"] == "hold"
-    assert result.iloc[0]["diff"] == 0.0
+    # Hold events are now excluded, so result should be empty
+    assert len(result) == 0
 
 
 def test_event_detector_multiple_events():
-    """Test detection of multiple events."""
+    """Test detection of multiple events (hold events excluded)."""
     rate_series = pd.DataFrame(
         {
             "date": [
@@ -82,10 +81,10 @@ def test_event_detector_multiple_events():
     detector = EventDetector()
     result = detector.detect(rate_series)
 
-    assert len(result) == 3
+    # Only raise and cut events returned (hold at index 1->2 excluded)
+    assert len(result) == 2
     assert result.iloc[0]["event_type"] == "raise"
-    assert result.iloc[1]["event_type"] == "hold"
-    assert result.iloc[2]["event_type"] == "cut"
+    assert result.iloc[1]["event_type"] == "cut"
 
 
 def test_event_detector_missing_columns_raises_error():

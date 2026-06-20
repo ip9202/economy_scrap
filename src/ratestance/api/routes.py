@@ -546,6 +546,8 @@ async def get_statistics(start_date: str = None, end_date: str = None) -> dict:
     # Calculate event statistics from ALL data (no date filtering)
     if not events_df_all.empty:
         # Filter out hold events (no rate change) - only count actual rate changes
+        # Note: After EventDetector fix (Task 2), events.csv contains only raise/cut events,
+        # so this filter is now redundant but kept for defensive programming
         actual_events_df = events_df_all[events_df_all["diff"] != 0].copy()
         event_count = len(actual_events_df)
 
@@ -556,7 +558,8 @@ async def get_statistics(start_date: str = None, end_date: str = None) -> dict:
             event_date = latest.get("date", "")
             latest_event = f"{event_type} ({event_date})"
         else:
-            # Fallback to first event if no rate changes
+            # DEAD CODE PATH: After Task 2, actual_events_df.empty implies events_df_all.empty
+            # This branch is unreachable but kept for defensive programming
             latest = events_df_all.iloc[0]
             event_type = latest.get("event_type", "hold")
             event_date = latest.get("date", "")

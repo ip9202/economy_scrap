@@ -116,13 +116,13 @@ class EcosClient:
                         logger.info(f"Found statistic: {stat_name} (code: {stat_code})")
                         return str(stat_code)
 
-            # Fallback: Try common statistic codes
-            fallback_codes = ["722Y001", "010Y002", "722Y002"]
-            for code in fallback_codes:
-                logger.warning(f"Using fallback statistic code: {code}")
-                return code
-
-            raise ValueError("Could not discover statistic code for base rate")
+            # Fallback: ECOS StatisticSearch 실제 조회로 검증된 기준금리 통계코드.
+            # 항목코드 0101000(기준금리)과 함께 사용. name 필드는 표 이름이지 코드가 아님.
+            logger.warning(
+                "Statistic discovery failed, using verified fallback code: 722Y001 "
+                "(한국은행 기준금리 및 여수신금리, 항목 0101000)"
+            )
+            return "722Y001"
 
         except requests.RequestException as e:
             logger.error(f"ECOS API request failed: {e}")

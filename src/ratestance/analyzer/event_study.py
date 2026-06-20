@@ -80,6 +80,20 @@ class EventStudy:
                     }
                 )
 
+        # 이벤트가 없거나 윈도우 내 stance 데이터가 없는 경우 빈 테이블 반환 (KeyError 방지)
+        if not study_rows:
+            logger.info("No events to analyze, returning empty event study table")
+            return pd.DataFrame(
+                columns=[
+                    "event_date",
+                    "event_type",
+                    "date",
+                    "day_offset",
+                    "stance_mean",
+                    "n_articles",
+                ]
+            )
+
         # Create DataFrame
         event_study_table = pd.DataFrame(study_rows)
 

@@ -17,7 +17,7 @@ class EventDetector:
             DataFrame with columns: date, prev_value, value, diff, event_type
             - event_type is 'raise' if diff > 0
             - event_type is 'cut' if diff < 0
-            - event_type is 'hold' if diff == 0
+            Note: hold events (diff == 0) are excluded from the result
 
         Raises:
             ValueError: If required columns are missing
@@ -48,6 +48,9 @@ class EventDetector:
         # Remove first row (no previous value)
         df = df[df["prev_value"].notna()]
 
+        # Filter to keep only raise/cut events (exclude hold events)
+        df = df[df["diff"] != 0].copy()
+
         # Select and rename columns
         events = df[["date", "prev_value", "value", "diff", "event_type"]].copy()
 
@@ -59,15 +62,15 @@ class EventDetector:
                 "total_events": len(events),
                 "raise_events": int(event_counts.get("raise", 0)),
                 "cut_events": int(event_counts.get("cut", 0)),
-                "hold_events": int(event_counts.get("hold", 0)),
             },
         )
 
         # Warn if no rate changes detected
-        if event_counts.get("raise", 0) + event_counts.get("cut", 0) == 0:
+        if len(events) == 0:
             logger.warning(
-                "No raise/cut events detected, analyzing hold events only. "
-                "This may indicate a period of policy stability."
+                "No raise/cut events detected. "
+                "This may indicate a period of complete policy stability "
+                "or insufficient data coverage."
             )
 
         return events
