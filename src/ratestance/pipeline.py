@@ -114,9 +114,12 @@ class Pipeline:
         self._save_csv(news_daily, "data/news_daily.csv", merge_on="date")
 
         # Stage 5: Collect base rates from ECOS
+        # 이벤트 감지를 위해 항상 전체 기간(months_back) 수집 (대시보드 날짜 범위 무시)
         logger.info("Stage 5: Collecting base rates from ECOS API")
+        rate_end = date.today()
+        rate_start = rate_end - timedelta(days=self.config.months_back * 30)
         rate_series = self.ecos_client.fetch_base_rates(
-            start_date=date_range[0], end_date=date_range[1]
+            start_date=rate_start, end_date=rate_end
         )
         self._save_csv(rate_series, "data/rate_series.csv", merge_on="date")
 
@@ -126,7 +129,7 @@ class Pipeline:
             logger.info("Stage 5b: Collecting US rates from FRED API")
             try:
                 us_rate_series = self.fred_client.fetch_us_rates(
-                    start_date=date_range[0], end_date=date_range[1]
+                    start_date=rate_start, end_date=rate_end
                 )
                 self._save_csv(us_rate_series, "data/us_rate_series.csv", merge_on="date")
             except Exception as e:
