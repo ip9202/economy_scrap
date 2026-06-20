@@ -68,13 +68,13 @@ export function useEvents(startDate?: string, endDate?: string): UseQueryResult<
   });
 }
 
-export function useEventStudy(startDate?: string, endDate?: string): UseQueryResult<EventStudyData[], ApiError> {
+// 이벤트 스터디는 역사적 분석 → 날짜 범위 무관하게 항상 fetch
+export function useEventStudy(): UseQueryResult<EventStudyData[], ApiError> {
   return useQuery({
-    queryKey: ["event-study", startDate, endDate],
-    queryFn: () => api.getEventStudy(startDate, endDate),
-    enabled: dateRangeEnabled(startDate),
-    staleTime: 10 * 60 * 1000,
-    gcTime: 20 * 60 * 1000,
+    queryKey: ["event-study"],
+    queryFn: () => api.getEventStudy(),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   });
 }
 

@@ -201,7 +201,9 @@ export function EventStudyChart({ data }: EventStudyChartProps) {
                 dataKey={eventType}
                 stroke={EVENT_TYPE_COLORS[eventType] || "#9ca3af"}
                 strokeWidth={2}
-                dot={false}
+                dot={{ r: 4, fill: EVENT_TYPE_COLORS[eventType] || "#9ca3af" }}
+                activeDot={{ r: 6 }}
+                connectNulls={false}
                 name={eventType}
               />
             ))}

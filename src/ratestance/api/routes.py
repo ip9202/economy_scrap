@@ -553,27 +553,16 @@ async def get_events(start_date: str = None, end_date: str = None) -> list[dict]
 async def get_event_study(start_date: str = None, end_date: str = None) -> list[dict]:
     """Get event study analysis data.
 
-    Args:
-        start_date: Optional start date in YYYY-MM-DD format (filters by event_date)
-        end_date: Optional end date in YYYY-MM-DD format (filters by event_date)
+    이벤트 스터디는 역사적 분석이므로 날짜 범위 필터 미적용.
+    대시보드 날짜 범위(뉴스 기간)와 독립적으로 전체 이벤트를 반환.
 
     Returns:
-        Filtered event study data
+        All event study data regardless of date range
     """
     df = read_csv_safe("event_study_table.csv")
 
     if df.empty:
         return []
-
-    # Apply date filtering if provided (filter by event_date)
-    if start_date or end_date:
-        df = df.copy()
-        df["event_date_parsed"] = pd.to_datetime(df["event_date"])
-        if start_date:
-            df = df[df["event_date_parsed"] >= start_date]
-        if end_date:
-            df = df[df["event_date_parsed"] <= end_date]
-        df = df.drop(columns=["event_date_parsed"])
 
     # Expected columns: event_date, event_type, day_offset, stance_mean, stance_std (optional)
     required_cols = ["event_date", "event_type", "day_offset", "stance_mean"]

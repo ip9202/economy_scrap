@@ -81,10 +81,8 @@ export default function DashboardPage() {
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
   );
-  const { data: eventStudy, isLoading: isLoadingStudy, error: studyError } = useEventStudy(
-    scrapeDateRange.startDate,
-    scrapeDateRange.endDate
-  );
+  // 이벤트 스터디는 역사적 분석이므로 날짜 범위 미전달 (전체 이벤트 표시)
+  const { data: eventStudy, isLoading: isLoadingStudy, error: studyError } = useEventStudy();
   const { data: statistics, isLoading: isLoadingStats } = useStatistics(
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
