@@ -189,7 +189,7 @@ export default function DashboardPage() {
       setIsNewsPanelOpen(true);
 
       // Fetch news articles for the selected date
-      const articles = await api.getNewsByDate(date, 3);
+      const articles = await api.getNewsByDate(date, 0);
       setNewsArticles(articles);
     } catch (error) {
       console.error("Failed to fetch news articles:", error);

@@ -763,14 +763,7 @@ async def get_news_articles_by_date(date: str, days: int = 3) -> list[dict]:
     # Get stance column
     stance_col = "stance_score" if "stance_score" in filtered_df.columns else "stance"
 
-    # Filter out neutral articles (stance == 0) to show only impactful news
-    filtered_df = filtered_df[filtered_df[stance_col] != 0].copy()
-
-    if filtered_df.empty:
-        logger.info(f"No impactful articles found for date range {start_date} to {end_date}")
-        return []
-
-    # Sort by absolute stance score (most hawkish/dovish first)
+    # Sort by absolute stance score (most hawkish/dovish first), neutral last
     filtered_df["stance_abs"] = filtered_df[stance_col].abs()
     filtered_df = filtered_df.sort_values("stance_abs", ascending=False)
 
