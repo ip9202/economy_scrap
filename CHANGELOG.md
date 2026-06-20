@@ -5,6 +5,36 @@ All notable changes to RateStance MVP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-06-20
+
+### Added
+- **미국 금리 시각화**: FRED Federal Funds Rate 데이터를 금리 시계열 차트에 한국 기준금리와 함께 표시
+  - `GET /api/data/us-rate-series` 엔드포인트 추가
+  - 차트에 Legend 추가 (한국/미국 구분)
+  - FRED 월별 데이터를 한국 일별 데이터에 forward-fill 매핑
+- **최근 금리 결정 비교 카드 (RateEventCard)**: 최근 금리 결정과 직전 결정을 인상/인하/동결 아이콘 및 %p 변동폭으로 시각화
+  - 인상: 빨간색 상승 화살표 / 인하: 파란색 하강 화살표 / 동결: 회색 수평선
+  - 최근 결정 날짜·금리·변동폭 + 직전 결정 요약 표시
+  - `GET /api/data/statistics` 응답에 `latest_event_detail`, `prev_event_detail` 필드 추가
+- **다음 발표일 배너 (NextMeetingBanner)**: 한국은행(BOK) 및 FOMC 다음 금리 결정 예정일을 D-day 형식으로 표시
+  - `GET /api/data/next-meetings` 엔드포인트 추가
+- **이벤트 스터디 차트 개선**: 데이터 포인트에 dot 마커 추가로 희소 데이터 가시성 향상
+
+### Fixed
+- **이벤트 스터디 분석 데이터 미표시**: API 날짜 필터가 2021~2025년 이벤트를 모두 제외하는 문제 수정
+  - 이벤트 스터디는 역사적 분석이므로 날짜 범위 필터 제거
+  - `useEventStudy` 훅에서 날짜 범위 의존성 제거 (항상 전체 데이터 fetch)
+- **미국 금리 차트 미표시**: FRED 월초 날짜(`YYYY-MM-01`)가 날짜 범위 필터에 제외되는 문제 수정
+  - `useUsRateSeries` 훅에서 날짜 범위 의존성 제거 (전체 시계열 항상 fetch)
+- **뉴스 툴팁 기사수 불일치**: 날짜 클릭 후 표시 기사수가 툴팁과 다른 문제 수정
+- **날짜 클릭 시 뉴스 없음**: API에서 `days=0` 파라미터 처리 오류 수정
+- **FRED 날짜 필터링**: 월별 US 금리 날짜를 월 단위(`YYYY-MM`)로 비교하도록 수정
+- **최근 이벤트 통계**: 이벤트 통계에서 실제 금리 변동 이벤트만 집계하도록 수정 (hold 제외)
+
+### Changed
+- `GET /api/data/statistics` 응답 구조 확장 (하위 호환 유지)
+- 금리 시계열 차트에 한국/미국 금리 Legend 표시 추가
+
 ## [0.1.1] - 2026-03-11
 
 ### Fixed
