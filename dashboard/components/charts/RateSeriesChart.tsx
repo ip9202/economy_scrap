@@ -47,13 +47,22 @@ export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload || !payload.length) return null;
 
-    const data = payload[0].payload;
+    const d = payload[0].payload;
     return (
       <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-        <p className="text-sm font-medium text-foreground">{data.fullDate}</p>
+        <p className="text-sm font-medium text-foreground mb-1">{d.fullDate}</p>
         <p className="text-sm text-muted-foreground">
-          금리: <span className="font-semibold text-primary">{data.rate}%</span>
+          한국 기준금리:{" "}
+          <span className="font-semibold text-primary">
+            {d.rate != null ? `${d.rate}%` : "-"}
+          </span>
         </p>
+        {d.usRate != null && (
+          <p className="text-sm text-muted-foreground">
+            미국 기준금리:{" "}
+            <span className="font-semibold text-blue-500">{d.usRate}%</span>
+          </p>
+        )}
       </div>
     );
   };
