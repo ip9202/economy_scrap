@@ -71,6 +71,8 @@ class DailyAggregator:
         date_range = pd.date_range(start=min_date, end=max_date, freq="D")
         daily = daily.set_index("date").reindex(date_range).reset_index()
         daily.rename(columns={"index": "date"}, inplace=True)
+        # 날짜를 YYYY-MM-DD 문자열로 정규화 (파이프라인 반복 실행/병합 시 형식 혼합 방지)
+        daily["date"] = pd.to_datetime(daily["date"]).dt.strftime("%Y-%m-%d")
 
         logger.info(
             "Daily aggregation complete",

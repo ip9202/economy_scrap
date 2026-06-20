@@ -46,7 +46,8 @@ class EventStudy:
         events["date"] = pd.to_datetime(events["date"]).dt.date
 
         daily_stance = daily_stance.copy()
-        daily_stance["date"] = pd.to_datetime(daily_stance["date"]).dt.date
+        # news_daily는 Timestamp/문자열이 혼합될 수 있으므로 format="mixed"로 안전 파싱
+        daily_stance["date"] = pd.to_datetime(daily_stance["date"], format="mixed").dt.date
 
         # Generate event study table
         study_rows = []

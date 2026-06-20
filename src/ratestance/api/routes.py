@@ -359,7 +359,8 @@ async def get_news_daily(start_date: str = None, end_date: str = None) -> list[d
     # Apply date filtering if provided
     if start_date or end_date:
         df = df.copy()
-        df["date_parsed"] = pd.to_datetime(df["date"])
+        # news_daily.csv는 Timestamp/문자열 혼합 가능 → format="mixed"로 안전 파싱
+        df["date_parsed"] = pd.to_datetime(df["date"], format="mixed")
         if start_date:
             df = df[df["date_parsed"] >= start_date]
         if end_date:
@@ -570,7 +571,10 @@ async def get_statistics(start_date: str = None, end_date: str = None) -> dict:
     if start_date or end_date:
         if not news_daily_df.empty and "date" in news_daily_df.columns:
             news_daily_filtered = news_daily_df.copy()
-            news_daily_filtered["date_parsed"] = pd.to_datetime(news_daily_filtered["date"])
+            # news_daily.csv는 Timestamp/문자열 혼합 가능 → format="mixed"로 안전 파싱
+            news_daily_filtered["date_parsed"] = pd.to_datetime(
+                news_daily_filtered["date"], format="mixed"
+            )
             if start_date:
                 news_daily_filtered = news_daily_filtered[
                     news_daily_filtered["date_parsed"] >= start_date
