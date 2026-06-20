@@ -26,11 +26,21 @@ export interface EventStudyData {
   stance_std?: number;
 }
 
+export interface RateEventDetail {
+  date: string;
+  event_type: string;  // "raise" | "cut"
+  value: number;       // 결정 금리 (%)
+  prev_value: number;  // 직전 금리 (%)
+  diff: number;        // 변동폭 (%p)
+}
+
 export interface Statistics {
   total_articles: number;
   avg_stance: number;
   event_count: number;
   latest_event: string;
+  latest_event_detail: RateEventDetail | null;
+  prev_event_detail: RateEventDetail | null;
 }
 
 export interface NewsArticle {

@@ -613,20 +613,33 @@ async def get_statistics(start_date: str = None, end_date: str = None) -> dict:
     event_count = 0
     latest_event = "No events"
 
+    latest_event_detail = None
+    prev_event_detail = None
+
     # Calculate event statistics from ALL data (no date filtering)
     if not events_df_all.empty:
-        # Filter out hold events (no rate change) - only count actual rate changes
-        # Note: After EventDetector fix (Task 2), events.csv contains only raise/cut events,
-        # so this filter is now redundant but kept for defensive programming
         actual_events_df = events_df_all[events_df_all["diff"] != 0].copy()
         event_count = len(actual_events_df)
 
-        # Get the latest actual rate change event (최신순: iloc[-1])
         if not actual_events_df.empty:
             latest = actual_events_df.iloc[-1]
             event_type = latest.get("event_type", "hold")
             event_date = latest.get("date", "")
             latest_event = f"{event_type} ({event_date})"
+
+            # 최근 2개 이벤트 상세 정보 (직전/최근 비교용)
+            def _event_detail(row: pd.Series) -> dict:
+                return {
+                    "date": str(row.get("date", "")),
+                    "event_type": str(row.get("event_type", "")),
+                    "value": float(row.get("value", 0)),
+                    "prev_value": float(row.get("prev_value", 0)),
+                    "diff": float(row.get("diff", 0)),
+                }
+
+            latest_event_detail = _event_detail(latest)
+            if len(actual_events_df) >= 2:
+                prev_event_detail = _event_detail(actual_events_df.iloc[-2])
 
     # Calculate article/stance statistics with date filtering
     news_daily_filtered = news_daily_df
@@ -655,6 +668,8 @@ async def get_statistics(start_date: str = None, end_date: str = None) -> dict:
         "avg_stance": round(avg_stance, 4),
         "event_count": event_count,
         "latest_event": latest_event,
+        "latest_event_detail": latest_event_detail,
+        "prev_event_detail": prev_event_detail,
     }
 
 

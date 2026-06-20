@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { RateEventCard } from "@/components/dashboard/RateEventCard";
 import { EventDetailPanel } from "@/components/dashboard/EventDetailPanel";
 import { NewsDetailPanel } from "@/components/dashboard/NewsDetailPanel";
 import { DateRangeSelector } from "@/components/dashboard/DateRangeSelector";
@@ -311,12 +312,19 @@ export default function DashboardPage() {
               icon={AlertCircle}
               description="분석 기간 내 이벤트"
             />
-            <StatCard
-              title="최근 이벤트"
-              value={statistics.latest_event}
-              icon={Calendar}
-              description="가장 최신 금리 결정"
-            />
+            {statistics.latest_event_detail ? (
+              <RateEventCard
+                latest={statistics.latest_event_detail}
+                prev={statistics.prev_event_detail}
+              />
+            ) : (
+              <StatCard
+                title="최근 이벤트"
+                value={statistics.latest_event}
+                icon={Calendar}
+                description="가장 최신 금리 결정"
+              />
+            )}
           </div>
         )}
 
