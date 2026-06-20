@@ -445,14 +445,16 @@ async def get_us_rate_series(start_date: str = None, end_date: str = None) -> li
     if df.empty:
         return []
 
-    # Apply date filtering if provided
+    # FRED 데이터는 월 초(1일)에 기록됨 → 월 단위로 필터링
     if start_date or end_date:
         df = df.copy()
         df["date_parsed"] = pd.to_datetime(df["date"], format="mixed")
         if start_date:
-            df = df[df["date_parsed"] >= start_date]
+            start_month = pd.Timestamp(start_date).to_period("M").to_timestamp()
+            df = df[df["date_parsed"] >= start_month]
         if end_date:
-            df = df[df["date_parsed"] <= end_date]
+            end_month = pd.Timestamp(end_date).to_period("M").to_timestamp("M")
+            df = df[df["date_parsed"] <= end_month]
         df = df.drop(columns=["date_parsed"])
 
     required_cols = ["date", "value", "unit"]
