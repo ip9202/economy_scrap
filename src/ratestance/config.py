@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     enable_gdelt: bool = Field(default=True, alias="ENABLE_GDELT")
     gdelt_cutoff_date: date = Field(default=date(2025, 8, 1), alias="GDELT_CUTOFF_DATE")
 
+    # FRED API Configuration (US Federal Funds Rate)
+    fred_api_key: str | None = Field(default=None, alias="FRED_API_KEY")
+    enable_fred: bool = Field(default=True, alias="ENABLE_FRED")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

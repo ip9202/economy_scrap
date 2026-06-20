@@ -79,6 +79,15 @@ export const api = {
     return fetchApi<RateSeries[]>(`/api/data/rate-series${queryString ? `?${queryString}` : ""}`);
   },
 
+  // Get US rate series data (FRED Federal Funds Rate, 월별)
+  getUsRateSeries: (startDate?: string, endDate?: string): Promise<RateSeries[]> => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    const queryString = params.toString();
+    return fetchApi<RateSeries[]>(`/api/data/us-rate-series${queryString ? `?${queryString}` : ""}`);
+  },
+
   // Get events
   getEvents: (startDate?: string, endDate?: string): Promise<Event[]> => {
     const params = new URLSearchParams();

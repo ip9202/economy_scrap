@@ -36,6 +36,11 @@ export function calculateDateRange(months: number): DateRange {
 
 // Format date for display (YYYY-MM-DD -> YYYY년 MM월 DD일)
 export function formatDateRange(startDate: string, endDate: string): string {
+  // 빈 값 처리 (hydration mismatch 방지)
+  if (!startDate || !endDate) {
+    return "로딩 중...";
+  }
+
   const start = new Date(startDate);
   const end = new Date(endDate);
 
@@ -78,18 +83,25 @@ export function DateRangeSelector({ onDateRangeChange, disabled = false }: DateR
   const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
   const [customStartDate, setCustomStartDate] = useState<string>("");
   const [customEndDate, setCustomEndDate] = useState<string>("");
-  const [dateRange, setDateRange] = useState<DateRange>(() => calculateDateRange(1)); // 기본 1개월
+  const [dateRange, setDateRange] = useState<DateRange>({ startDate: "", endDate: "" }); // 초기 빈 값 (클라이언트 전용)
   const [errorMessage, setErrorMessage] = useState<string>("");
+
+  // 클라이언트 마운트 후 초기 날짜 범위 설정 (hydration mismatch 방지)
+  useEffect(() => {
+    const initialRange = calculateDateRange(1);
+    setDateRange(initialRange);
+    onDateRangeChange(initialRange);
+  }, [onDateRangeChange]);
 
   // 미리 설정된 기간 선택
   useEffect(() => {
-    if (!isCustomMode) {
+    if (!isCustomMode && dateRange.startDate !== "") { // 빈 값이 아닐 때만 업데이트
       const newRange = calculateDateRange(selectedMonths);
       setDateRange(newRange);
       onDateRangeChange(newRange);
       setErrorMessage("");
     }
-  }, [selectedMonths, isCustomMode, onDateRangeChange]);
+  }, [selectedMonths, isCustomMode, onDateRangeChange, dateRange.startDate]);
 
   // 사용자 정의 날짜 적용
   const handleCustomDateApply = () => {

@@ -144,7 +144,7 @@ export function EventStudyChart({ data }: EventStudyChartProps) {
   };
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full flex flex-col" style={{ height: 400 }}>
       {/* Event Date Range Display */}
       {eventDateRange && (
         <div className="mb-4 p-3 bg-muted/50 rounded-lg flex-shrink-0">
@@ -163,7 +163,7 @@ export function EventStudyChart({ data }: EventStudyChartProps) {
       )}
       {/* Chart area takes remaining space */}
       <div className="flex-1 min-h-0">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={400}>
           <LineChart
             data={chartData}
             margin={{ top: 5, right: 30, left: 20, bottom: 60 }}

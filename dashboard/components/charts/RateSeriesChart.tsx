@@ -15,20 +15,33 @@ import type { RateSeries } from "@/types";
 
 interface RateSeriesChartProps {
   data: RateSeries[];
+  usRate?: RateSeries[];
 }
 
-export function RateSeriesChart({ data }: RateSeriesChartProps) {
+export function RateSeriesChart({ data, usRate }: RateSeriesChartProps) {
   // Process data for chart
   const chartData = useMemo(() => {
-    return data.map((d) => ({
-      date: new Date(d.date).toLocaleDateString("ko-KR", {
-        month: "short",
-        day: "numeric",
-      }),
-      fullDate: d.date,
-      rate: d.value,
-    }));
-  }, [data]);
+    // 미국 금리는 월별 → YYYY-MM 키로 매핑하여 한국 일별 날짜에 forward-fill
+    const usMap = new Map<string, number>();
+    if (usRate && usRate.length) {
+      usRate.forEach((u) => {
+        const month = String(u.date).slice(0, 7); // YYYY-MM
+        if (u.value != null) usMap.set(month, u.value);
+      });
+    }
+    return data.map((d) => {
+      const month = String(d.date).slice(0, 7);
+      return {
+        date: new Date(d.date).toLocaleDateString("ko-KR", {
+          month: "short",
+          day: "numeric",
+        }),
+        fullDate: d.date,
+        rate: d.value,
+        usRate: usMap.has(month) ? usMap.get(month) ?? null : null,
+      };
+    });
+  }, [data, usRate]);
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }: any) => {
@@ -46,8 +59,8 @@ export function RateSeriesChart({ data }: RateSeriesChartProps) {
   };
 
   return (
-    <div className="w-full h-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full" style={{ height: 400 }}>
+      <ResponsiveContainer width="100%" height={400}>
         <AreaChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
           <defs>
             <linearGradient id="rateGradient" x1="0" y1="0" x2="0" y2="1">
@@ -78,8 +91,19 @@ export function RateSeriesChart({ data }: RateSeriesChartProps) {
             stroke="hsl(var(--primary))"
             strokeWidth={2}
             fill="url(#rateGradient)"
-            name="기준금리"
+            name="한국 기준금리"
           />
+          {usRate && usRate.length > 0 && (
+            <Area
+              type="stepAfter"
+              dataKey="usRate"
+              stroke="#3b82f6"
+              strokeWidth={2}
+              fill="rgba(59,130,246,0.1)"
+              name="미국 기준금리"
+              connectNulls
+            />
+          )}
         </AreaChart>
       </ResponsiveContainer>
     </div>

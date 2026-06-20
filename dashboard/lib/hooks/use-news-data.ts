@@ -24,11 +24,15 @@ export const queryKeys = {
   all: () => [...queryKeys.newsDaily, ...queryKeys.rateSeries, ...queryKeys.events] as const,
 };
 
+// 날짜 범위가 설정되었을 때만 fetch (빈 초기값일 때 전체 데이터/과도한 호출 방지)
+const dateRangeEnabled = (startDate?: string) => Boolean(startDate);
+
 // Custom hooks
 export function useNewsDaily(startDate?: string, endDate?: string): UseQueryResult<NewsDaily[], ApiError> {
   return useQuery({
     queryKey: ["news-daily", startDate, endDate],
     queryFn: () => api.getNewsDaily(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
@@ -38,8 +42,19 @@ export function useRateSeries(startDate?: string, endDate?: string): UseQueryRes
   return useQuery({
     queryKey: ["rate-series", startDate, endDate],
     queryFn: () => api.getRateSeries(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+  });
+}
+
+export function useUsRateSeries(startDate?: string, endDate?: string): UseQueryResult<RateSeries[], ApiError> {
+  return useQuery({
+    queryKey: ["us-rate-series", startDate, endDate],
+    queryFn: () => api.getUsRateSeries(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
+    staleTime: 15 * 60 * 1000, // 미국 금리는 월별로 변경 드물어 더 길게
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -47,6 +62,7 @@ export function useEvents(startDate?: string, endDate?: string): UseQueryResult<
   return useQuery({
     queryKey: ["events", startDate, endDate],
     queryFn: () => api.getEvents(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
     staleTime: 15 * 60 * 1000, // 15 minutes (events change rarely)
     gcTime: 30 * 60 * 1000,
   });
@@ -56,6 +72,7 @@ export function useEventStudy(startDate?: string, endDate?: string): UseQueryRes
   return useQuery({
     queryKey: ["event-study", startDate, endDate],
     queryFn: () => api.getEventStudy(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
     staleTime: 10 * 60 * 1000,
     gcTime: 20 * 60 * 1000,
   });
@@ -65,6 +82,7 @@ export function useStatistics(startDate?: string, endDate?: string): UseQueryRes
   return useQuery({
     queryKey: ["statistics", startDate, endDate],
     queryFn: () => api.getStatistics(startDate, endDate),
+    enabled: dateRangeEnabled(startDate),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

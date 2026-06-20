@@ -8,7 +8,7 @@ from loguru import logger
 
 from ratestance.aggregator import DailyAggregator
 from ratestance.analyzer import EventDetector, EventStudy
-from ratestance.collector import EcosClient, NewsCollector
+from ratestance.collector import EcosClient, FredClient, NewsCollector
 from ratestance.config import Settings
 from ratestance.scorer import StanceScorer
 from ratestance.visualizer import Visualizer
@@ -37,6 +37,12 @@ class Pipeline:
         self.config = config
         self.news_collector = NewsCollector()
         self.ecos_client = EcosClient(api_key=config.ecod_api_key)
+        # FRED 클라이언트는 API 키가 있을 때만 초기화 (미국 금리, optional)
+        self.fred_client = (
+            FredClient(api_key=config.fred_api_key)
+            if config.fred_api_key and config.enable_fred
+            else None
+        )
         self.stance_scorer = StanceScorer(
             hawk_words=config.hawk_words, dove_words=config.dove_words
         )
@@ -114,6 +120,19 @@ class Pipeline:
         )
         self._save_csv(rate_series, "data/rate_series.csv", merge_on="date")
 
+        # Stage 5b: Collect US rates from FRED (optional, 키 있을 때만)
+        us_rate_series = pd.DataFrame()
+        if self.fred_client is not None:
+            logger.info("Stage 5b: Collecting US rates from FRED API")
+            try:
+                us_rate_series = self.fred_client.fetch_us_rates(
+                    start_date=date_range[0], end_date=date_range[1]
+                )
+                self._save_csv(us_rate_series, "data/us_rate_series.csv", merge_on="date")
+            except Exception as e:
+                logger.warning(f"FRED collection failed, skipping US rates: {e}")
+                us_rate_series = pd.DataFrame()
+
         # Stage 6: Detect rate change events
         logger.info("Stage 6: Detecting rate change events")
         events = self.event_detector.detect(rate_series)
@@ -140,6 +159,7 @@ class Pipeline:
             "news_scored": news_scored,
             "news_daily": news_daily,
             "rate_series": rate_series,
+            "us_rate_series": us_rate_series,
             "events": events,
             "event_study_table": event_study_table,
         }
@@ -172,7 +192,9 @@ class Pipeline:
                 merged_df = pd.concat([existing_df, df], ignore_index=True)
                 merged_df = merged_df.drop_duplicates(subset=[merge_on], keep="last")
                 merged_df.to_csv(filepath, index=False, encoding="utf-8-sig")
-                logger.info(f"Merged and saved {len(merged_df)} rows to {filepath} (added {len(df)} new)")
+                logger.info(
+                    f"Merged and saved {len(merged_df)} rows to {filepath} (added {len(df)} new)"
+                )
                 return
             except Exception as e:
                 logger.warning(f"Failed to merge with existing file: {e}. Saving as new file.")

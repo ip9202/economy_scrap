@@ -429,6 +429,48 @@ async def get_rate_series(start_date: str = None, end_date: str = None) -> list[
     return result
 
 
+@router.get("/us-rate-series")
+async def get_us_rate_series(start_date: str = None, end_date: str = None) -> list[dict]:
+    """Get US Federal Funds Rate time series (FRED, 월별).
+
+    Args:
+        start_date: Optional start date in YYYY-MM-DD format
+        end_date: Optional end date in YYYY-MM-DD format
+
+    Returns:
+        Filtered US rate series data
+    """
+    df = read_csv_safe("us_rate_series.csv")
+
+    if df.empty:
+        return []
+
+    # Apply date filtering if provided
+    if start_date or end_date:
+        df = df.copy()
+        df["date_parsed"] = pd.to_datetime(df["date"], format="mixed")
+        if start_date:
+            df = df[df["date_parsed"] >= start_date]
+        if end_date:
+            df = df[df["date_parsed"] <= end_date]
+        df = df.drop(columns=["date_parsed"])
+
+    required_cols = ["date", "value", "unit"]
+    if not all(col in df.columns for col in required_cols):
+        logger.error("Missing required columns in us_rate_series.csv")
+        raise HTTPException(status_code=500, detail="US rate file missing required columns")
+
+    result = df[required_cols].to_dict(orient="records")
+
+    for row in result:
+        row["date"] = str(row["date"])
+        if pd.isna(row.get("value")):
+            row["value"] = 0.0
+        row["unit"] = str(row.get("unit", "%"))
+
+    return result
+
+
 @router.get("/events")
 async def get_events(start_date: str = None, end_date: str = None) -> list[dict]:
     """Get interest rate change events.

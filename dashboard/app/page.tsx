@@ -15,10 +15,10 @@ import { DateRangeSelector } from "@/components/dashboard/DateRangeSelector";
 import { NewsStanceChart } from "@/components/charts/NewsStanceChart";
 import { RateSeriesChart } from "@/components/charts/RateSeriesChart";
 import { EventStudyChart } from "@/components/charts/EventStudyChart";
-import { calculateDateRange } from "@/components/dashboard/DateRangeSelector";
 import {
   useNewsDaily,
   useRateSeries,
+  useUsRateSeries,
   useEvents,
   useEventStudy,
   useStatistics,
@@ -53,10 +53,10 @@ export default function DashboardPage() {
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const [currentTime, setCurrentTime] = useState<string>("");
   const [scrapeDateRange, setScrapeDateRange] = useState<{ startDate: string; endDate: string }>(
-    calculateDateRange(6)
+    { startDate: "", endDate: "" }
   );
 
-  // Set current time on client side only to avoid hydration mismatch
+  // 클라이언트에서만 현재 시간 설정 (날짜 범위는 DateRangeSelector가 단독 관리 → 충돌/루프 방지)
   useEffect(() => {
     setCurrentTime(new Date().toLocaleString("ko-KR"));
   }, []);
@@ -67,6 +67,10 @@ export default function DashboardPage() {
     scrapeDateRange.endDate
   );
   const { data: rateSeries, isLoading: isLoadingRate, error: rateError } = useRateSeries(
+    scrapeDateRange.startDate,
+    scrapeDateRange.endDate
+  );
+  const { data: usRateSeries } = useUsRateSeries(
     scrapeDateRange.startDate,
     scrapeDateRange.endDate
   );
@@ -331,11 +335,11 @@ export default function DashboardPage() {
               <CardTitle>뉴스 감성 시계열</CardTitle>
             </CardHeader>
             <CardContent>
-              {newsDaily && newsDaily.length > 0 && events && events.length > 0 ? (
+              {newsDaily && newsDaily.length > 0 ? (
                 <div className="h-[400px]">
                   <NewsStanceChart
                     data={newsDaily}
-                    events={events}
+                    events={events || []}
                     selectedDate={selectedDate}
                     onDateClick={handleDateClick}
                   />
@@ -356,7 +360,7 @@ export default function DashboardPage() {
             <CardContent>
               {rateSeries && rateSeries.length > 0 ? (
                 <div className="h-[400px]">
-                  <RateSeriesChart data={rateSeries} />
+                  <RateSeriesChart data={rateSeries} usRate={usRateSeries} />
                 </div>
               ) : (
                 <div className="h-[400px] flex items-center justify-center text-muted-foreground">
@@ -377,9 +381,15 @@ export default function DashboardPage() {
               <div className="h-[600px]">
                 <EventStudyChart data={eventStudy} />
               </div>
-            ) : (
+            ) : isLoadingStudy ? (
               <div className="h-[600px] flex items-center justify-center text-muted-foreground">
                 데이터를 불러오는 중...
+              </div>
+            ) : (
+              <div className="h-[600px] flex items-center justify-center text-muted-foreground text-center px-4">
+                선택한 기간에 금리 변동 이벤트가 없습니다.
+                <br />
+                더 긴 기간을 선택하거나 과거 금리 변동 시기를 확인해 주세요.
               </div>
             )}
           </CardContent>
