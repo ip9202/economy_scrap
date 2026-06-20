@@ -738,11 +738,10 @@ async def get_news_articles_by_date(date: str, days: int = 3) -> list[dict]:
             status_code=400, detail=f"Invalid date format: {date}. Use YYYY-MM-DD."
         ) from None
 
-    # Calculate date range
-    start_date = target_date - timedelta(days=days)
-    end_date = target_date + timedelta(days=days)
+    # Calculate date range (date-only to avoid time-of-day truncation issues)
+    start_date_only = (target_date - timedelta(days=days)).date()
+    end_date_only = (target_date + timedelta(days=days)).date()
 
-    # Convert date column to datetime if it's not already
     # Check for published_at column (news_scored.csv uses this)
     date_col = "published_at" if "published_at" in df.columns else "date"
     if date_col not in df.columns:
@@ -750,14 +749,15 @@ async def get_news_articles_by_date(date: str, days: int = 3) -> list[dict]:
             status_code=500, detail=f"Data file missing required date column: {date_col}"
         )
 
+    # Compare by date part only so days=0 correctly matches all articles on that day
     df["date_parsed"] = pd.to_datetime(df[date_col])
+    df["date_only"] = df["date_parsed"].dt.date
 
-    # Filter by date range
-    mask = (df["date_parsed"] >= start_date) & (df["date_parsed"] <= end_date)
+    mask = (df["date_only"] >= start_date_only) & (df["date_only"] <= end_date_only)
     filtered_df = df[mask].copy()
 
     if filtered_df.empty:
-        logger.info(f"No articles found for date range {start_date} to {end_date}")
+        logger.info(f"No articles found for date range {start_date_only} to {end_date_only}")
         return []
 
     # Get stance column
@@ -791,7 +791,9 @@ async def get_news_articles_by_date(date: str, days: int = 3) -> list[dict]:
         elif "url" in row and pd.notna(row.get("url")):
             row["url"] = str(row["url"])
 
-    logger.info(f"Returning {len(result)} articles for date range {start_date} to {end_date}")
+    logger.info(
+        f"Returning {len(result)} articles for date range {start_date_only} to {end_date_only}"
+    )
     return result
 
 
